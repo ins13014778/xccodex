@@ -66,7 +66,7 @@ export type Output = z.infer<OutputSchema>
 
 export const ConfigTool = buildTool({
   name: CONFIG_TOOL_NAME,
-  searchHint: 'get or set Claude Code settings (theme, model)',
+  searchHint: 'get or set xccodex settings (theme, model)',
   maxResultSizeChars: 100_000,
   async description() {
     return DESCRIPTION
@@ -145,7 +145,7 @@ export const ConfigTool = buildTool({
 
     // 3. SET operation
 
-    // Handle "default" â€” unset the config key so it falls back to the
+    // Handle "default" â€?unset the config key so it falls back to the
     // platform-aware default (determined by the bridge feature gate).
     if (
       setting === 'remoteControlAtStartup' &&

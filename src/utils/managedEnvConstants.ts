@@ -4,15 +4,14 @@
  *
  * When CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST is truthy in the spawn env, these
  * are stripped from settings-sourced env so the host's routing config isn't
- * overridden by a user's ~/.claude/settings.json â€” e.g. a Bedrock setup for
+ * overridden by a user's ~/.claude/settings.json â€?e.g. a Bedrock setup for
  * terminal CLI that would break a host that only supports first-party auth.
  *
- * @[MODEL LAUNCH]: New models usually don't need changes here â€”
- * VERTEX_REGION_CLAUDE_* is prefix-matched. New providers or new routing
+ * @[MODEL LAUNCH]: New models usually don't need changes here â€? * VERTEX_REGION_CLAUDE_* is prefix-matched. New providers or new routing
  * config vars (endpoint, project, region, auth) do.
  */
 const PROVIDER_MANAGED_ENV_VARS = new Set([
-  // The flag itself â€” settings can't unset it once the host set it
+  // The flag itself â€?settings can't unset it once the host set it
   'CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST',
   // Provider selection
   'CLAUDE_CODE_USE_BEDROCK',
@@ -40,7 +39,7 @@ const PROVIDER_MANAGED_ENV_VARS = new Set([
   'CLAUDE_CODE_SKIP_BEDROCK_AUTH',
   'CLAUDE_CODE_SKIP_VERTEX_AUTH',
   'CLAUDE_CODE_SKIP_FOUNDRY_AUTH',
-  // Model defaults â€” often set to provider-specific ID formats
+  // Model defaults â€?often set to provider-specific ID formats
   'ANTHROPIC_MODEL',
   'XCCODE_MODEL',
   'ANTHROPIC_DEFAULT_HAIKU_MODEL',
@@ -61,7 +60,7 @@ const PROVIDER_MANAGED_ENV_VARS = new Set([
 ])
 
 const PROVIDER_MANAGED_ENV_PREFIXES = [
-  // Per-model Vertex region overrides â€” scales with model releases, so
+  // Per-model Vertex region overrides â€?scales with model releases, so
   // prefix-matched to avoid drift on each launch.
   'VERTEX_REGION_CLAUDE_',
 ]
@@ -88,7 +87,7 @@ export const DANGEROUS_SHELL_SETTINGS = [
 
 /**
  * Safe environment variables that can be applied before trust dialog.
- * These are Claude Code specific settings that don't pose security risks.
+ * These are xccodex specific settings that don't pose security risks.
  *
  * IMPORTANT: This is the source of truth for which env vars are safe.
  * Any env var NOT in this list is considered dangerous and will trigger

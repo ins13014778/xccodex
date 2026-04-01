@@ -1,21 +1,21 @@
 /**
- * MDM (Mobile Device Management) profile enforcement for Claude Code managed settings.
+ * MDM (Mobile Device Management) profile enforcement for xccodex managed settings.
  *
  * Reads enterprise settings from OS-level MDM configuration:
  * - macOS: `com.anthropic.claudecode` preference domain
- *   (MDM profiles at /Library/Managed Preferences/ only â€” not user-writable ~/Library/Preferences/)
+ *   (MDM profiles at /Library/Managed Preferences/ only â€?not user-writable ~/Library/Preferences/)
  * - Windows: `HKLM\SOFTWARE\Policies\ClaudeCode` (admin-only)
  *   and `HKCU\SOFTWARE\Policies\ClaudeCode` (user-writable, lowest priority)
  * - Linux: No MDM equivalent (uses /etc/claude-code/managed-settings.json instead)
  *
- * Policy settings use "first source wins" â€” the highest-priority source that exists
+ * Policy settings use "first source wins" â€?the highest-priority source that exists
  * provides all policy settings. Priority (highest to lowest):
- *   remote â†’ HKLM/plist â†’ managed-settings.json â†’ HKCU
+ *   remote â†?HKLM/plist â†?managed-settings.json â†?HKCU
  *
  * Architecture:
- *   constants.ts â€” shared constants and plist path builder (zero heavy imports)
- *   rawRead.ts   â€” subprocess I/O only (zero heavy imports, fires at main.tsx evaluation)
- *   settings.ts  â€” parsing, caching, first-source-wins logic (this file)
+ *   constants.ts â€?shared constants and plist path builder (zero heavy imports)
+ *   rawRead.ts   â€?subprocess I/O only (zero heavy imports, fires at main.tsx evaluation)
+ *   settings.ts  â€?parsing, caching, first-source-wins logic (this file)
  */
 
 import { join } from 'path'
@@ -57,7 +57,7 @@ let hkcuCache: MdmResult | null = null
 let mdmLoadPromise: Promise<void> | null = null
 
 // ---------------------------------------------------------------------------
-// Startup load â€” fires early, awaited before first settings read
+// Startup load â€?fires early, awaited before first settings read
 // ---------------------------------------------------------------------------
 
 /**
@@ -109,7 +109,7 @@ export async function ensureMdmSettingsLoaded(): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
-// Sync cache readers â€” used by the settings pipeline (loadSettingsFromDisk)
+// Sync cache readers â€?used by the settings pipeline (loadSettingsFromDisk)
 // ---------------------------------------------------------------------------
 
 /**
@@ -119,7 +119,7 @@ export async function ensureMdmSettingsLoaded(): Promise<void> {
  * - macOS: /Library/Managed Preferences/ (requires root)
  * - Windows: HKLM registry (requires admin)
  *
- * Does NOT include HKCU (user-writable) â€” use getHkcuSettings() for that.
+ * Does NOT include HKCU (user-writable) â€?use getHkcuSettings() for that.
  */
 export function getMdmSettings(): MdmResult {
   return mdmCache ?? EMPTY_RESULT
@@ -127,7 +127,7 @@ export function getMdmSettings(): MdmResult {
 
 /**
  * Read HKCU registry settings (user-writable, lowest policy priority).
- * Only relevant on Windows â€” returns empty on other platforms.
+ * Only relevant on Windows â€?returns empty on other platforms.
  */
 export function getHkcuSettings(): MdmResult {
   return hkcuCache ?? EMPTY_RESULT
@@ -155,13 +155,13 @@ export function setMdmSettingsCache(mdm: MdmResult, hkcu: MdmResult): void {
 }
 
 // ---------------------------------------------------------------------------
-// Refresh â€” fires a fresh raw read, parses, returns results.
+// Refresh â€?fires a fresh raw read, parses, returns results.
 // Used by the 30-minute poll in changeDetector.ts.
 // ---------------------------------------------------------------------------
 
 /**
  * Fire a fresh MDM subprocess read and parse the results.
- * Does NOT update the cache â€” caller decides whether to apply.
+ * Does NOT update the cache â€?caller decides whether to apply.
  */
 export async function refreshMdmSettings(): Promise<{
   mdm: MdmResult
@@ -172,7 +172,7 @@ export async function refreshMdmSettings(): Promise<{
 }
 
 // ---------------------------------------------------------------------------
-// Parsing â€” converts raw subprocess output to validated MdmResult
+// Parsing â€?converts raw subprocess output to validated MdmResult
 // ---------------------------------------------------------------------------
 
 /**
@@ -229,7 +229,7 @@ function consumeRawReadResult(raw: RawReadResult): {
   mdm: MdmResult
   hkcu: MdmResult
 } {
-  // macOS: plist result (first source wins â€” already filtered in mdmRawRead)
+  // macOS: plist result (first source wins â€?already filtered in mdmRawRead)
   if (raw.plistStdouts && raw.plistStdouts.length > 0) {
     const { stdout, label } = raw.plistStdouts[0]!
     const result = parseCommandOutputAsSettings(stdout, label)
@@ -252,7 +252,7 @@ function consumeRawReadResult(raw: RawReadResult): {
     }
   }
 
-  // No admin MDM â€” check managed-settings.json before using HKCU
+  // No admin MDM â€?check managed-settings.json before using HKCU
   if (hasManagedSettingsFile()) {
     return { mdm: EMPTY_RESULT, hkcu: EMPTY_RESULT }
   }

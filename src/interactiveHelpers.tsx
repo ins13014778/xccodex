@@ -45,8 +45,7 @@ export function showDialog<T = void>(root: Root, renderer: (done: (result: T) =>
 
 /**
  * Render an error message through Ink, then unmount and exit.
- * Use this for fatal errors after the Ink root has been created â€”
- * console.error is swallowed by Ink's patchConsole, so we render
+ * Use this for fatal errors after the Ink root has been created â€? * console.error is swallowed by Ink's patchConsole, so we render
  * through the React tree instead.
  */
 export async function exitWithError(root: Root, message: string, beforeExit?: () => Promise<void>): Promise<never> {
@@ -58,8 +57,7 @@ export async function exitWithError(root: Root, message: string, beforeExit?: ()
 
 /**
  * Render a message through Ink, then unmount and exit.
- * Use this for messages after the Ink root has been created â€”
- * console output is swallowed by Ink's patchConsole, so we render
+ * Use this for messages after the Ink root has been created â€? * console output is swallowed by Ink's patchConsole, so we render
  * through the React tree instead.
  */
 export async function exitWithMessage(root: Root, message: string, options?: {
@@ -123,7 +121,7 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
   }
 
   // Always show the trust dialog in interactive sessions, regardless of permission mode.
-  // The trust dialog is the workspace trust boundary â€” it warns about untrusted repos
+  // The trust dialog is the workspace trust boundary â€?it warns about untrusted repos
   // and checks CLAUDE.md external includes. bypassPermissions mode
   // only affects tool execution permissions, not workspace trust.
   // Note: non-interactive sessions (CI/CD with -p) never reach showSetupScreens at all.
@@ -202,7 +200,7 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
 
   // Check for custom API key
   // On homespace, ANTHROPIC_API_KEY is preserved in process.env for child
-  // processes but ignored by Claude Code itself (see auth.ts).
+  // processes but ignored by xccodex itself (see auth.ts).
   if (process.env.ANTHROPIC_API_KEY && !isRunningOnHomespace()) {
     const customApiKeyTruncated = normalizeApiKeyForConfig(process.env.ANTHROPIC_API_KEY);
     const keyStatus = getCustomApiKeyStatus(customApiKeyTruncated);
@@ -222,7 +220,7 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
     await showSetupDialog(root, done => <BypassPermissionsModeDialog onAccept={done} />);
   }
   if (feature('TRANSCRIPT_CLASSIFIER')) {
-    // Only show the opt-in dialog if auto mode actually resolved â€” if the
+    // Only show the opt-in dialog if auto mode actually resolved â€?if the
     // gate denied it (org not allowlisted, settings disabled), showing
     // consent for an unavailable feature is pointless. The
     // verifyAutoModeGateAccess notification will explain why instead.
@@ -236,13 +234,13 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
 
   // --dangerously-load-development-channels confirmation. On accept, append
   // dev channels to any --channels list already set in main.tsx. Org policy
-  // is NOT bypassed â€” gateChannelServer() still runs; this flag only exists
+  // is NOT bypassed â€?gateChannelServer() still runs; this flag only exists
   // to sidestep the --channels approved-server allowlist.
   if (feature('KAIROS') || feature('KAIROS_CHANNELS')) {
     // gateChannelServer and ChannelsNotice read tengu_harbor after this
     // function returns. A cold disk cache (fresh install, or first run after
     // the flag was added server-side) defaults to false and silently drops
-    // channel notifications for the whole session â€” gh#37026.
+    // channel notifications for the whole session â€?gh#37026.
     // checkGate_CACHED_OR_BLOCKING returns immediately if disk already says
     // true; only blocks on a cold/stale-false cache (awaits the same memoized
     // initializeGrowthBook promise fired earlier). Also warms the
@@ -257,7 +255,7 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
         getClaudeAIOAuthTokens
       }] = await Promise.all([import('./services/mcp/channelAllowlist.js'), import('./utils/auth.js')]);
       // Skip the dialog when channels are blocked (tengu_harbor off or no
-      // OAuth) â€” accepting then immediately seeing "not available" in
+      // OAuth) â€?accepting then immediately seeing "not available" in
       // ChannelsNotice is worse than no dialog. Append entries anyway so
       // ChannelsNotice renders the blocked branch with the dev entries
       // named. dev:true here is for the flag label in ChannelsNotice
@@ -314,7 +312,7 @@ export function getRenderContext(exitOnCtrlC: boolean): {
 
   // Bench mode: when set, append per-frame phase timings as JSONL for
   // offline analysis by bench/repl-scroll.ts. Captures the full TUI
-  // render pipeline (yoga â†’ screen buffer â†’ diff â†’ optimize â†’ stdout)
+  // render pipeline (yoga â†?screen buffer â†?diff â†?optimize â†?stdout)
   // so perf work on any phase can be validated against real user flows.
   const frameTimingLogPath = process.env.CLAUDE_CODE_FRAME_TIMING_LOG;
   return {
@@ -327,8 +325,8 @@ export function getRenderContext(exitOnCtrlC: boolean): {
         stats.observe('frame_duration_ms', event.durationMs);
         if (frameTimingLogPath && event.phases) {
           // Bench-only env-var-gated path: sync write so no frames dropped
-          // on abrupt exit. ~100 bytes at â‰¤60fps is negligible. rss/cpu are
-          // single syscalls; cpu is cumulative â€” bench side computes delta.
+          // on abrupt exit. ~100 bytes at â‰?0fps is negligible. rss/cpu are
+          // single syscalls; cpu is cumulative â€?bench side computes delta.
           const line =
           // eslint-disable-next-line custom-rules/no-direct-json-operations -- tiny object, hot bench path
           JSON.stringify({
@@ -340,8 +338,7 @@ export function getRenderContext(exitOnCtrlC: boolean): {
           // eslint-disable-next-line custom-rules/no-sync-fs -- bench-only, sync so no frames dropped on exit
           appendFileSync(frameTimingLogPath, line);
         }
-        // Skip flicker reporting for terminals with synchronized output â€”
-        // DEC 2026 buffers between BSU/ESU so clear+redraw is atomic.
+        // Skip flicker reporting for terminals with synchronized output â€?        // DEC 2026 buffers between BSU/ESU so clear+redraw is atomic.
         if (isSynchronizedOutputSupported()) {
           return;
         }

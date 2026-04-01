@@ -1,10 +1,9 @@
 {
-  "name": "xccode",
+  "name": "xccodex",
   "private": false,
   "version": "2.1.88",
   "type": "module",
   "bin": {
-    "xccode": "dist/cli.js",
     "xccodex": "dist/xccodex.js"
   },
   "engines": {
@@ -12,8 +11,8 @@
   },
   "author": "Anthropic <support@anthropic.com>",
   "license": "SEE LICENSE IN README.md",
-  "description": "xccode is a terminal-first coding assistant CLI rebuilt from the recovered source tree.",
-  "homepage": "https://github.com/ins13014778/xccode",
+  "description": "xccodex is a terminal-first coding assistant CLI rebuilt from the recovered source tree.",
+  "homepage": "https://github.com/ins13014778/xccodex",
   "files": [
     "dist/cli.js",
     "dist/xccodex.js",
@@ -21,7 +20,7 @@
     "README.md"
   ],
   "bugs": {
-    "url": "https://github.com/ins13014778/xccode/issues"
+    "url": "https://github.com/ins13014778/xccodex/issues"
   },
   "scripts": {
     "build": "node ./scripts/build.mjs",

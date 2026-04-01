@@ -15,7 +15,7 @@ if (process.env.CLAUDE_CODE_REMOTE === 'true') {
 
 // Harness-science L0 ablation baseline. Inlined here (not init.ts) because
 // BashTool/AgentTool/PowerShellTool capture DISABLE_BACKGROUND_TASKS into
-// module-level consts at import time â€” init() runs too late. feature() gate
+// module-level consts at import time â€?init() runs too late. feature() gate
 // DCEs this entire block from external builds.
 // eslint-disable-next-line custom-rules/no-top-level-side-effects, custom-rules/no-process-env-top-level
 if (feature('ABLATION_BASELINE') && process.env.CLAUDE_CODE_ABLATION_BASELINE) {
@@ -43,7 +43,7 @@ async function main(): Promise<void> {
   if (args.length === 1 && (args[0] === '--version' || args[0] === '-v' || args[0] === '-V')) {
     // MACRO.VERSION is inlined at build time
     // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log(`${MACRO.VERSION} (xccode)`);
+    console.log(`${MACRO.VERSION} (xccodex)`);
     return;
   }
 
@@ -98,9 +98,9 @@ async function main(): Promise<void> {
     return;
   }
 
-  // Fast-path for `--daemon-worker=<kind>` (internal â€” supervisor spawns this).
+  // Fast-path for `--daemon-worker=<kind>` (internal â€?supervisor spawns this).
   // Must come before the daemon subcommand check: spawned per-worker, so
-  // perf-sensitive. No enableConfigs(), no analytics sinks at this layer â€”
+  // perf-sensitive. No enableConfigs(), no analytics sinks at this layer â€?
   // workers are lean. If a worker kind needs configs/auth (assistant will),
   // it calls them inside its run() fn.
   if (feature('DAEMON') && args[0] === '--daemon-worker') {
@@ -111,7 +111,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  // Fast-path for `claude remote-control` (also accepts legacy `claude remote` / `claude sync` / `claude bridge`):
+  // Fast-path for `xccodex remote-control` (also accepts legacy `xccodex remote` / `xccodex sync` / `xccodex bridge`):
   // serve local machine as bridge environment.
   // feature() must stay inline for build-time dead code elimination;
   // isBridgeEnabled() checks the runtime GrowthBook gate.
@@ -135,7 +135,7 @@ async function main(): Promise<void> {
       exitWithError
     } = await import('../utils/process.js');
 
-    // Auth check must come before the GrowthBook gate check â€” without auth,
+    // Auth check must come before the GrowthBook gate check â€?without auth,
     // GrowthBook has no user context and would return a stale/default false.
     // getBridgeDisabledReason awaits GB init, so the returned value is fresh
     // (not the stale disk cache), but init still needs auth headers to work.
@@ -167,7 +167,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  // Fast-path for `claude daemon [subcommand]`: long-running supervisor.
+  // Fast-path for `xccodex daemon [subcommand]`: long-running supervisor.
   if (feature('DAEMON') && args[0] === 'daemon') {
     profileCheckpoint('cli_daemon_path');
     const {
@@ -185,7 +185,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  // Fast-path for `claude ps|logs|attach|kill` and `--bg`/`--background`.
+  // Fast-path for `xccodex ps|logs|attach|kill` and `--bg`/`--background`.
   // Session management against the ~/.claude/sessions/ registry. Flag
   // literals are inlined so bg.js only loads when actually dispatching.
   if (feature('BG_SESSIONS') && (args[0] === 'ps' || args[0] === 'logs' || args[0] === 'attach' || args[0] === 'kill' || args.includes('--bg') || args.includes('--background'))) {
@@ -221,13 +221,13 @@ async function main(): Promise<void> {
       templatesMain
     } = await import('../cli/handlers/templateJobs.js');
     await templatesMain(args);
-    // process.exit (not return) â€” mountFleetView's Ink TUI can leave event
+    // process.exit (not return) â€?mountFleetView's Ink TUI can leave event
     // loop handles that prevent natural exit.
     // eslint-disable-next-line custom-rules/no-process-exit
     process.exit(0);
   }
 
-  // Fast-path for `claude environment-runner`: headless BYOC runner.
+  // Fast-path for `xccodex environment-runner`: headless BYOC runner.
   // feature() must stay inline for build-time dead code elimination.
   if (feature('BYOC_ENVIRONMENT_RUNNER') && args[0] === 'environment-runner') {
     profileCheckpoint('cli_environment_runner_path');
@@ -238,7 +238,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  // Fast-path for `claude self-hosted-runner`: headless self-hosted-runner
+  // Fast-path for `xccodex self-hosted-runner`: headless self-hosted-runner
   // targeting the SelfHostedRunnerWorkerService API (register + poll; poll IS
   // heartbeat). feature() must stay inline for build-time dead code elimination.
   if (feature('SELF_HOSTED_RUNNER') && args[0] === 'self-hosted-runner') {

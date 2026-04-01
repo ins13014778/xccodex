@@ -81,13 +81,13 @@ function permissionRuleExtractPrefix(permissionRule: string): string | null {
 }
 
 /**
- * Resolve Claude Code-specific path patterns for sandbox-runtime.
+ * Resolve xccodex-specific path patterns for sandbox-runtime.
  *
- * Claude Code uses special path prefixes in permission rules:
- * - `//path` â†’ absolute from filesystem root (becomes `/path`)
- * - `/path` â†’ relative to settings file directory (becomes `$SETTINGS_DIR/path`)
- * - `~/path` â†’ passed through (sandbox-runtime handles this)
- * - `./path` or `path` â†’ passed through (sandbox-runtime handles this)
+ * xccodex uses special path prefixes in permission rules:
+ * - `//path` â†?absolute from filesystem root (becomes `/path`)
+ * - `/path` â†?relative to settings file directory (becomes `$SETTINGS_DIR/path`)
+ * - `~/path` â†?passed through (sandbox-runtime handles this)
+ * - `./path` or `path` â†?passed through (sandbox-runtime handles this)
  *
  * This function only handles CC-specific conventions (`//` and `/`).
  * Standard path patterns like `~/` and relative paths are passed through
@@ -102,7 +102,7 @@ export function resolvePathPatternForSandbox(
 ): string {
   // Handle // prefix - absolute from root (CC-specific convention)
   if (pattern.startsWith('//')) {
-    return pattern.slice(1) // "//.aws/**" â†’ "/.aws/**"
+    return pattern.slice(1) // "//.aws/**" â†?"/.aws/**"
   }
 
   // Handle / prefix - relative to settings file directory (CC-specific convention)
@@ -122,10 +122,10 @@ export function resolvePathPatternForSandbox(
  * Resolve paths from sandbox.filesystem.* settings (allowWrite, denyWrite, etc).
  *
  * Unlike permission rules (Edit/Read), these settings use standard path semantics:
- * - `/path` â†’ absolute path (as written, NOT settings-relative)
- * - `~/path` â†’ expanded to home directory
- * - `./path` or `path` â†’ relative to settings file directory
- * - `//path` â†’ absolute (legacy permission-rule syntax, accepted for compat)
+ * - `/path` â†?absolute path (as written, NOT settings-relative)
+ * - `~/path` â†?expanded to home directory
+ * - `./path` or `path` â†?relative to settings file directory
+ * - `//path` â†?absolute (legacy permission-rule syntax, accepted for compat)
  *
  * Fix for #30067: resolvePathPatternForSandbox treats `/Users/foo/.cargo` as
  * settings-relative (permission-rule convention). Users reasonably expect
@@ -139,7 +139,7 @@ export function resolveSandboxFilesystemPath(
   pattern: string,
   source: SettingSource,
 ): string {
-  // Legacy permission-rule escape: //path â†’ /path. Kept for compat with
+  // Legacy permission-rule escape: //path â†?/path. Kept for compat with
   // users who worked around #30067 by writing //Users/foo/.cargo in config.
   if (pattern.startsWith('//')) return pattern.slice(1)
   return expandPath(pattern, getSettingsRootPathForSource(source))
@@ -164,7 +164,7 @@ function shouldAllowManagedReadPathsOnly(): boolean {
 }
 
 /**
- * Convert Claude Code settings format to SandboxRuntimeConfig format
+ * Convert xccodex settings format to SandboxRuntimeConfig format
  * (Function exported for testing)
  *
  * @param settings Merged settings (used for sandbox config like network, ripgrep, etc.)
@@ -228,7 +228,7 @@ export function convertToSandboxRuntimeConfig(
   const allowRead: string[] = []
 
   // Always deny writes to settings.json files to prevent sandbox escape
-  // This blocks settings in the original working directory (where Claude Code started)
+  // This blocks settings in the original working directory (where xccodex started)
   const settingsPaths = SETTING_SOURCES.map(source =>
     getSettingsFilePathForSource(source),
   ).filter((p): p is string => p !== undefined)
@@ -262,7 +262,7 @@ export function convertToSandboxRuntimeConfig(
   // /dev/null at non-existent ones, which (a) leaves a 0-byte HEAD stub on
   // the host and (b) breaks `git log HEAD` inside bwrap ("ambiguous argument").
   // So: if a file exists, denyWrite (ro-bind in place, no stub). If not, scrub
-  // it post-command in scrubBareGitRepoFiles() â€” planted files are gone before
+  // it post-command in scrubBareGitRepoFiles() â€?planted files are gone before
   // unsandboxed git runs; inside the command, git is itself sandboxed.
   bareGitRepoScrubPaths.length = 0
   const bareGitRepoFiles = ['HEAD', 'objects', 'refs', 'hooks', 'config']
@@ -289,7 +289,7 @@ export function convertToSandboxRuntimeConfig(
 
   // Include directories added via --add-dir CLI flag or /add-dir command.
   // These must be in allowWrite so that Bash commands (which run inside the
-  // sandbox) can access them â€” not just file tools, which check permissions
+  // sandbox) can access them â€?not just file tools, which check permissions
   // at the app level via pathInAllowedWorkingPath().
   // Two sources: persisted in settings, and session-only in bootstrap state.
   const additionalDirs = new Set([
@@ -408,7 +408,7 @@ function scrubBareGitRepoFiles(): void {
       rmSync(p, { recursive: true })
       logForDebugging(`[Sandbox] scrubbed planted bare-repo file: ${p}`)
     } catch {
-      // ENOENT is the expected common case â€” nothing was planted
+      // ENOENT is the expected common case â€?nothing was planted
     }
   }
 }
@@ -427,10 +427,10 @@ async function detectWorktreeMainRepoPath(cwd: string): Promise<string | null> {
     if (!gitdirMatch?.[1]) {
       return null
     }
-    // gitdir may be relative (rare, but git accepts it) â€” resolve against cwd
+    // gitdir may be relative (rare, but git accepts it) â€?resolve against cwd
     const gitdir = resolve(cwd, gitdirMatch[1].trim())
     // gitdir format: /path/to/main/repo/.git/worktrees/worktree-name
-    // Match the /.git/worktrees/ segment specifically â€” indexOf('.git') alone
+    // Match the /.git/worktrees/ segment specifically â€?indexOf('.git') alone
     // would false-match paths like /home/user/.github-projects/...
     const marker = `${sep}.git${sep}worktrees${sep}`
     const markerIndex = gitdir.lastIndexOf(marker)
@@ -553,8 +553,7 @@ function isSandboxingEnabled(): boolean {
  *
  * Fix for #34044: previously isSandboxingEnabled() silently returned false
  * when dependencies were missing, giving users zero feedback that their
- * explicit security setting was being ignored. This is a security footgun â€”
- * users configure allowedDomains expecting enforcement, get none.
+ * explicit security setting was being ignored. This is a security footgun â€? * users configure allowedDomains expecting enforcement, get none.
  *
  * Call this once at startup (REPL/print) and surface the reason if present.
  * Does not cover the case where the user never enabled sandbox (no noise).

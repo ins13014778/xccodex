@@ -91,7 +91,7 @@ const findGitRootImpl = memoizeWithLRU(
  * Returns the directory containing .git, or null if not found.
  *
  * Memoized per startPath with an LRU cache (max 50 entries) to prevent
- * unbounded growth â€” gitDiff calls this with dirname(file), so editing many
+ * unbounded growth â€?gitDiff calls this with dirname(file), so editing many
  * files across different directories would otherwise accumulate entries forever.
  */
 export const findGitRoot = createFindGitRoot()
@@ -111,7 +111,7 @@ function createFindGitRoot(): {
 /**
  * Resolve a git root to the canonical main repository root.
  * For a regular repo this is a no-op. For a worktree, follows the
- * `.git` file â†’ `gitdir:` â†’ `commondir` chain to find the main repo's
+ * `.git` file â†?`gitdir:` â†?`commondir` chain to find the main repo's
  * working directory.
  *
  * Submodules (`.git` is a file but no `commondir`) fall through to the
@@ -134,7 +134,7 @@ const resolveCanonicalRoot = memoizeWithLRU(
         gitContent.slice('gitdir:'.length).trim(),
       )
       // commondir points to the shared .git directory (relative to worktree gitdir).
-      // Submodules have no commondir (readFileSync throws ENOENT) â†’ fall through.
+      // Submodules have no commondir (readFileSync throws ENOENT) â†?fall through.
       const commonDir = resolve(
         worktreeGitDir,
         readFileSync(join(worktreeGitDir, 'commondir'), 'utf-8').trim(),
@@ -146,10 +146,10 @@ const resolveCanonicalRoot = memoizeWithLRU(
       //
       // Validate the structure matches what `git worktree add` creates:
       //   1. worktreeGitDir is a direct child of <commonDir>/worktrees/
-      //      â†’ ensures the commondir file we read lives inside the resolved
+      //      â†?ensures the commondir file we read lives inside the resolved
       //        common dir, not inside the attacker's repo
       //   2. <worktreeGitDir>/gitdir points back to <gitRoot>/.git
-      //      â†’ ensures an attacker can't borrow a victim's existing worktree
+      //      â†?ensures an attacker can't borrow a victim's existing worktree
       //        entry by guessing its path
       // Both are required: (1) alone fails if victim has a worktree of the
       // trusted repo; (2) alone fails because attacker controls worktreeGitDir.
@@ -159,8 +159,8 @@ const resolveCanonicalRoot = memoizeWithLRU(
       // Git writes gitdir with strbuf_realpath() (symlinks resolved), but
       // gitRoot from findGitRoot() is only lexically resolved. Realpath gitRoot
       // so legitimate worktrees accessed via a symlinked path (e.g. macOS
-      // /tmp â†’ /private/tmp) aren't rejected. Realpath the directory then join
-      // '.git' â€” realpathing the .git file itself would follow a symlinked .git
+      // /tmp â†?/private/tmp) aren't rejected. Realpath the directory then join
+      // '.git' â€?realpathing the .git file itself would follow a symlinked .git
       // and let an attacker borrow a victim's back-link.
       const backlink = realpathSync(
         readFileSync(join(worktreeGitDir, 'gitdir'), 'utf-8').trim(),
@@ -306,11 +306,11 @@ export function normalizeGitRemoteUrl(url: string): string | null {
     if (isLocalHost(host) && path.startsWith('git/')) {
       const proxyPath = path.slice(4) // Remove "git/" prefix
       const segments = proxyPath.split('/')
-      // 3+ segments where first contains a dot â†’ host/owner/repo (GHE format)
+      // 3+ segments where first contains a dot â†?host/owner/repo (GHE format)
       if (segments.length >= 3 && segments[0]!.includes('.')) {
         return proxyPath.toLowerCase()
       }
-      // 2 segments â†’ owner/repo (legacy format, assume github.com)
+      // 2 segments â†?owner/repo (legacy format, assume github.com)
       return `github.com/${proxyPath}`.toLowerCase()
     }
 
@@ -429,7 +429,7 @@ export const getWorktreeCount = async (): Promise<number> => {
 export const stashToCleanState = async (message?: string): Promise<boolean> => {
   try {
     const stashMessage =
-      message || `Claude Code auto-stash - ${new Date().toISOString()}`
+      message || `xccodex auto-stash - ${new Date().toISOString()}`
 
     // First, check if we have untracked files
     const { untracked } = await getFileStatus()
@@ -508,7 +508,7 @@ export async function getGithubRepo(): Promise<string | null> {
     logForDebugging('Local GitHub repo: unknown')
     return null
   }
-  // Only return results for github.com â€” callers (e.g. issue submission)
+  // Only return results for github.com â€?callers (e.g. issue submission)
   // assume the result is a github.com repository.
   const parsed = parseGitRemote(remoteUrl)
   if (parsed && parsed.host === 'github.com') {
@@ -794,8 +794,8 @@ export async function preserveGitStateForIssue(): Promise<PreservedGitState | nu
 
     const remoteBaseSha = mergeBase.trim()
 
-    // All 5 commands below depend only on remoteBaseSha â€” run them in parallel.
-    // ~5Ã—90ms serial â†’ ~90ms parallel on Bun native (used by /issue and /share).
+    // All 5 commands below depend only on remoteBaseSha â€?run them in parallel.
+    // ~5Ã—90ms serial â†?~90ms parallel on Bun native (used by /issue and /share).
     const [
       { stdout: patch },
       untrackedFiles,
@@ -881,7 +881,7 @@ export function isCurrentDirectoryBareGitRepo(): boolean {
   try {
     const stats = fs.statSync(gitPath)
     if (stats.isFile()) {
-      // worktree/submodule â€” Git follows the gitdir reference
+      // worktree/submodule â€?Git follows the gitdir reference
       return false
     }
     if (stats.isDirectory()) {
@@ -891,20 +891,20 @@ export function isCurrentDirectoryBareGitRepo(): boolean {
         // DIRECTORY would pass a bare statSync but Git's setup_git_directory
         // rejects it (not a valid HEAD) and falls back to cwd discovery.
         if (fs.statSync(gitHeadPath).isFile()) {
-          // normal repo â€” .git/HEAD valid, Git won't fall back to cwd
+          // normal repo â€?.git/HEAD valid, Git won't fall back to cwd
           return false
         }
-        // .git/HEAD exists but is not a regular file â€” fall through
+        // .git/HEAD exists but is not a regular file â€?fall through
       } catch {
-        // .git exists but no HEAD â€” fall through to bare-repo check
+        // .git exists but no HEAD â€?fall through to bare-repo check
       }
     }
   } catch {
-    // no .git â€” fall through to bare-repo indicator check
+    // no .git â€?fall through to bare-repo indicator check
   }
 
   // No valid .git/HEAD found. Check if cwd has bare git repo indicators.
-  // Be cautious â€” flag if ANY of these exist without a valid .git reference.
+  // Be cautious â€?flag if ANY of these exist without a valid .git reference.
   // Per-indicator try/catch so an error on one doesn't mask another.
   try {
     if (fs.statSync(join(cwd, 'HEAD')).isFile()) return true

@@ -54,11 +54,11 @@ const FLOOR_OUTPUT_TOKENS = 3000
 const MAX_529_RETRIES = 3
 export const BASE_DELAY_MS = 500
 
-// Foreground query sources where the user IS blocking on the result â€” these
+// Foreground query sources where the user IS blocking on the result â€?these
 // retry on 529. Everything else (summaries, titles, suggestions, classifiers)
 // bails immediately: during a capacity cascade each retry is 3-10Ã— gateway
 // amplification, and the user never sees those fail anyway. New sources
-// default to no-retry â€” add here only if the user is waiting on the result.
+// default to no-retry â€?add here only if the user is waiting on the result.
 const FOREGROUND_529_RETRY_SOURCES = new Set<QuerySource>([
   'repl_main_thread',
   'repl_main_thread:outputStyle:custom',
@@ -73,8 +73,8 @@ const FOREGROUND_529_RETRY_SOURCES = new Set<QuerySource>([
   'hook_prompt',
   'verification_agent',
   'side_question',
-  // Security classifiers â€” must complete for auto-mode correctness.
-  // yoloClassifier.ts uses 'auto_mode' (not 'yolo_classifier' â€” that's
+  // Security classifiers â€?must complete for auto-mode correctness.
+  // yoloClassifier.ts uses 'auto_mode' (not 'yolo_classifier' â€?that's
   // type-only). bash_classifier is ant-only; feature-gate so the string
   // tree-shakes out of external builds (excluded-strings.txt).
   'auto_mode',
@@ -82,7 +82,7 @@ const FOREGROUND_529_RETRY_SOURCES = new Set<QuerySource>([
 ])
 
 function shouldRetry529(querySource: QuerySource | undefined): boolean {
-  // undefined â†’ retry (conservative for untagged call paths)
+  // undefined â†?retry (conservative for untagged call paths)
   return (
     querySource === undefined || FOREGROUND_529_RETRY_SOURCES.has(querySource)
   )
@@ -134,7 +134,7 @@ interface RetryOptions {
   querySource?: QuerySource
   /**
    * Pre-seed the consecutive 529 counter. Used when this retry loop is a
-   * non-streaming fallback after a streaming 529 â€” the streaming 529 should
+   * non-streaming fallback after a streaming 529 â€?the streaming 529 should
    * count toward MAX_529_RETRIES so total 529s-before-fallback is consistent
    * regardless of which request mode hit the overload.
    */
@@ -224,7 +224,7 @@ export async function* withRetry<T>(
         )
       ) {
         logForDebugging(
-          'Stale connection (ECONNRESET/EPIPE) â€” disabling keep-alive for retry',
+          'Stale connection (ECONNRESET/EPIPE) â€?disabling keep-alive for retry',
         )
         disableKeepAlive()
       }
@@ -313,7 +313,7 @@ export async function* withRetry<T>(
         continue
       }
 
-      // Non-foreground sources bail immediately on 529 â€” no retry amplification
+      // Non-foreground sources bail immediately on 529 â€?no retry amplification
       // during capacity cascades. User never sees these fail.
       if (is529Error(error) && !shouldRetry529(options.querySource)) {
         logEvent('tengu_api_529_background_dropped', {
@@ -327,7 +327,7 @@ export async function* withRetry<T>(
       if (
         is529Error(error) &&
         // If FALLBACK_FOR_ALL_PRIMARY_MODELS is not set, fall through only if the primary model is a non-custom Opus model.
-        // TODO: Revisit if the isNonCustomOpusModel check should still exist, or if isNonCustomOpusModel is a stale artifact of when Claude Code was hardcoded on Opus.
+        // TODO: Revisit if the isNonCustomOpusModel check should still exist, or if isNonCustomOpusModel is a stale artifact of when xccodex was hardcoded on Opus.
         (process.env.FALLBACK_FOR_ALL_PRIMARY_MODELS ||
           (!isClaudeAISubscriber() && isNonCustomOpusModel(options.model)))
       ) {
@@ -448,7 +448,7 @@ export async function* withRetry<T>(
       } else if (persistent) {
         persistentAttempt++
         // Retry-After is a server directive and bypasses maxDelayMs inside
-        // getRetryDelay (intentional â€” honoring it is correct). Cap at the
+        // getRetryDelay (intentional â€?honoring it is correct). Cap at the
         // 6hr reset-cap here so a pathological header can't wait unbounded.
         delayMs = Math.min(
           getRetryDelay(
@@ -707,7 +707,7 @@ function shouldRetry(error: APIError): boolean {
 
   // CCR mode: auth is via infrastructure-provided JWTs, so a 401/403 is a
   // transient blip (auth service flap, network hiccup) rather than bad
-  // credentials. Bypass x-should-retry:false â€” the server assumes we'd retry
+  // credentials. Bypass x-should-retry:false â€?the server assumes we'd retry
   // the same bad key, but our key is fine.
   if (
     isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) &&

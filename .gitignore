@@ -1,8 +1,10 @@
-.claude-recovery/
+﻿.claude-recovery/
 .xccode-recovery/
 .omc/
 .xccode/settings.local.json
 .claude/settings.local.json
+build-errors.txt
+build-error-lines.txt
 .DS_Store
 .npm-cache/
 dist/

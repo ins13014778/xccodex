@@ -350,9 +350,9 @@ export type RepoValidationResult = {
   status: 'match' | 'mismatch' | 'not_in_repo' | 'no_repo_required' | 'error';
   sessionRepo?: string;
   currentRepo?: string | null;
-  /** Host of the session repo (e.g. "github.com" or "ghe.corp.com") â€” for display only */
+  /** Host of the session repo (e.g. "github.com" or "ghe.corp.com") â€?for display only */
   sessionHost?: string;
-  /** Host of the current repo (e.g. "github.com" or "ghe.corp.com") â€” for display only */
+  /** Host of the current repo (e.g. "github.com" or "ghe.corp.com") â€?for display only */
   currentHost?: string;
   errorMessage?: string;
 };
@@ -394,7 +394,7 @@ export async function validateSessionRepository(sessionData: SessionResource): P
   }
 
   // Compare both owner/repo and host to avoid cross-instance mismatches.
-  // Strip ports before comparing hosts â€” SSH remotes omit the port while
+  // Strip ports before comparing hosts â€?SSH remotes omit the port while
   // HTTPS remotes may include a non-standard port (e.g. ghe.corp.com:8443),
   // which would cause a false mismatch.
   const stripPort = (host: string): string => host.replace(/:\d+$/, '');
@@ -408,7 +408,7 @@ export async function validateSessionRepository(sessionData: SessionResource): P
     };
   }
 
-  // Repo mismatch â€” keep sessionRepo/currentRepo as plain "owner/repo" so
+  // Repo mismatch â€?keep sessionRepo/currentRepo as plain "owner/repo" so
   // downstream consumers (e.g. getKnownPathsForRepo) can use them as lookup keys.
   // Include host information in separate fields for display purposes.
   return {
@@ -438,7 +438,7 @@ export async function teleportResumeCodeSession(sessionId: string, onProgress?: 
       logEvent('tengu_teleport_resume_error', {
         error_type: 'no_access_token' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
       });
-      throw new Error('Claude Code web sessions require authentication with a Claude.ai account. API key authentication is not sufficient. Please run /login to authenticate, or check your authentication status with /status.');
+      throw new Error('xccodex web sessions require authentication with a Claude.ai account. API key authentication is not sufficient. Please run /login to authenticate, or check your authentication status with /status.');
     }
 
     // Get organization UUID
@@ -569,10 +569,10 @@ export async function teleportFromSessionsAPI(sessionId: string, orgUUID: string
     logForDebugging(`[teleport] Starting fetch for session: ${sessionId}`);
     onProgress?.('fetching_logs');
     const logsStartTime = Date.now();
-    // Try CCR v2 first (GetTeleportEvents â€” server dispatches Spanner/
+    // Try CCR v2 first (GetTeleportEvents â€?server dispatches Spanner/
     // threadstore). Fall back to session-ingress if it returns null
     // (endpoint not yet deployed, or transient error). Once session-ingress
-    // is gone, the fallback becomes a no-op â€” getSessionLogsViaOAuth will
+    // is gone, the fallback becomes a no-op â€?getSessionLogsViaOAuth will
     // return null too and we fail with "Failed to fetch session logs".
     let logs = await getTeleportEvents(sessionId, accessToken, orgUUID);
     if (logs === null) {
@@ -608,7 +608,7 @@ export async function teleportFromSessionsAPI(sessionId: string, orgUUID: string
       logEvent('tengu_teleport_error_session_not_found_404', {
         sessionId: sessionId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
       });
-      throw new TeleportOperationError(`${sessionId} not found.`, `${sessionId} not found.\n${chalk.dim('Run /status in Claude Code to check your account.')}`);
+      throw new TeleportOperationError(`${sessionId} not found.`, `${sessionId} not found.\n${chalk.dim('Run /status in xccodex to check your account.')}`);
     }
     logError(err);
     throw new Error(`Failed to fetch session from Sessions API: ${err.message}`);
@@ -654,7 +654,7 @@ export async function pollRemoteSessionEvents(sessionId: string, afterId: string
     last_id: string | null;
   };
 
-  // Cap is a safety valve against stuck cursors; steady-state is 0â€“1 pages.
+  // Cap is a safety valve against stuck cursors; steady-state is 0â€? pages.
   const MAX_EVENT_PAGES = 50;
   const sdkMessages: SDKMessage[] = [];
   let cursor = afterId;
@@ -723,7 +723,7 @@ export async function pollRemoteSessionEvents(sessionId: string, afterId: string
  *   origin remote; far fewer pass the full precondition chain.
  * - Bundle (CCR_FORCE_BUNDLE=1): CLI creates `git bundle --all`, uploads via Files
  *   API, passes file_id as seed_bundle_file_id on the session context. CCR
- *   downloads it and clones from the bundle. No GitHub dependency â€” works for
+ *   downloads it and clones from the bundle. No GitHub dependency â€?works for
  *   local-only repos. Reach: 54% of CLI sessions (anything with .git/).
  *   Backend: anthropic#303856.
  */
@@ -743,7 +743,7 @@ export async function teleportToRemote(options: {
   useDefaultEnvironment?: boolean;
   /**
    * Explicit environment_id (e.g. the code_review synthetic env). Bypasses
-   * fetchEnvironments; the usual repo-detection â†’ git source still runs so
+   * fetchEnvironments; the usual repo-detection â†?git source still runs so
    * the container gets the repo checked out (orchestrator reads --repo-dir
    * from pwd, it doesn't clone).
    */
@@ -761,7 +761,7 @@ export async function teleportToRemote(options: {
    * When set with environmentId, creates and uploads a git bundle of the
    * local working tree (createAndUploadGitBundle handles the stash-create
    * for uncommitted changes) and passes it as seed_bundle_file_id. Backend
-   * clones from the bundle instead of GitHub â€” container gets the caller's
+   * clones from the bundle instead of GitHub â€?container gets the caller's
    * exact local state. Needs .git/ only, not a GitHub remote.
    */
   useBundle?: boolean;
@@ -773,7 +773,7 @@ export async function teleportToRemote(options: {
   onBundleFail?: (message: string) => void;
   /**
    * When true, disables the git-bundle fallback entirely. Use for flows like
-   * autofix where CCR must push to GitHub â€” a bundle can't do that.
+   * autofix where CCR must push to GitHub â€?a bundle can't do that.
    */
   skipBundle?: boolean;
   /**
@@ -814,8 +814,7 @@ export async function teleportToRemote(options: {
     }
 
     // Explicit environmentId short-circuits Haiku title-gen + env selection.
-    // Still runs repo detection so the container gets a working directory â€”
-    // the code_review orchestrator reads --repo-dir $(pwd), it doesn't clone
+    // Still runs repo detection so the container gets a working directory â€?    // the code_review orchestrator reads --repo-dir $(pwd), it doesn't clone
     // (bughunter.go:520 sets a git source too; env-manager does the checkout
     // before the SessionStart hook fires).
     if (options.environmentId) {
@@ -832,7 +831,7 @@ export async function teleportToRemote(options: {
 
       // Bundle mode: upload local working tree (uncommitted changes via
       // refs/seed/stash), container clones from the bundle. No GitHub.
-      // Otherwise: github.com source â€” caller checked eligibility.
+      // Otherwise: github.com source â€?caller checked eligibility.
       let gitSource: GitSource | null = null;
       let seedBundleFileId: string | null = null;
       if (options.useBundle) {
@@ -900,16 +899,15 @@ export async function teleportToRemote(options: {
     let gitOutcome: GitRepositoryOutcome | null = null;
     let seedBundleFileId: string | null = null;
 
-    // Source selection ladder: GitHub clone (if CCR can actually pull it) â†’
-    // bundle fallback (if .git exists) â†’ empty sandbox.
+    // Source selection ladder: GitHub clone (if CCR can actually pull it) â†?    // bundle fallback (if .git exists) â†?empty sandbox.
     //
     // The preflight is the same code path the container's git-proxy clone
-    // will hit (get_github_client_with_user_auth â†’ no_sync_user_token_found).
+    // will hit (get_github_client_with_user_auth â†?no_sync_user_token_found).
     // 50% of users who reach the "install GitHub App" step never finish it;
     // without the preflight, every one of them gets a container that 401s
     // on clone. With it, they silently fall back to bundle.
     //
-    // CCR_FORCE_BUNDLE=1 skips the preflight entirely â€” useful for testing
+    // CCR_FORCE_BUNDLE=1 skips the preflight entirely â€?useful for testing
     // or when you know your GitHub auth is busted. Read here (not in the
     // caller) so it works for remote-agent too, not just --remote.
 
@@ -929,7 +927,7 @@ export async function teleportToRemote(options: {
     }
 
     // Preflight: does CCR have a token that can clone this repo?
-    // Only checked for github.com â€” GHES needs ghe_configuration_id which
+    // Only checked for github.com â€?GHES needs ghe_configuration_id which
     // we don't have, and GHES users are power users who probably finished
     // setup. For them (and for non-GitHub hosts that parseGitRemote
     // somehow accepted), fall through optimistically; if the backend
@@ -937,7 +935,7 @@ export async function teleportToRemote(options: {
     let ghViable = false;
     let sourceReason: 'github_preflight_ok' | 'ghes_optimistic' | 'github_preflight_failed' | 'no_github_remote' | 'forced_bundle' | 'no_git_at_all' = 'no_git_at_all';
 
-    // gitRoot gates both bundle creation and the gate check itself â€” no
+    // gitRoot gates both bundle creation and the gate check itself â€?no
     // point awaiting GrowthBook when there's nothing to bundle.
     const gitRoot = findGitRoot(getCwd());
     const forceBundle = !options.skipBundle && isEnvTruthy(process.env.CCR_FORCE_BUNDLE);
@@ -956,7 +954,7 @@ export async function teleportToRemote(options: {
       sourceReason = 'no_github_remote';
     }
 
-    // Preflight failed but bundle is off â€” fall through optimistically like
+    // Preflight failed but bundle is off â€?fall through optimistically like
     // pre-preflight behavior. Backend reports the real auth error.
     if (!ghViable && !bundleSeedGateOn && repoInfo) {
       ghViable = true;
@@ -981,7 +979,7 @@ export async function teleportToRemote(options: {
       };
       // type: 'github' is used for all GitHub-compatible hosts (github.com and GHE).
       // The CLI can't distinguish GHE from non-GitHub hosts (GitLab, Bitbucket)
-      // client-side â€” the backend validates the URL against configured GHE instances
+      // client-side â€?the backend validates the URL against configured GHE instances
       // and ignores git_info for unrecognized hosts.
       gitOutcome = {
         type: 'git_repository',
@@ -995,8 +993,7 @@ export async function teleportToRemote(options: {
 
     // Bundle fallback. Only try bundle if GitHub wasn't viable, the gate is
     // on, and there's a .git/ to bundle from. Reaching here with
-    // ghViable=false and repoInfo non-null means the preflight failed â€”
-    // .git definitely exists (detectCurrentRepositoryWithHost read the
+    // ghViable=false and repoInfo non-null means the preflight failed â€?    // .git definitely exists (detectCurrentRepositoryWithHost read the
     // remote from it).
     if (!gitSource && bundleSeedGateOn) {
       logForDebugging(`[teleportToRemote] Bundling (reason: ${sourceReason})`);
@@ -1014,7 +1011,7 @@ export async function teleportToRemote(options: {
         let msg: string;
         switch (bundle.failReason) {
           case 'empty_repo':
-            msg = 'Repository has no commits â€” run `git add . && git commit -m "initial"` then retry';
+            msg = 'Repository has no commits â€?run `git add . && git commit -m "initial"` then retry';
             break;
           case 'too_large':
             msg = `Repo is too large to teleport${setup}`;
@@ -1048,7 +1045,7 @@ export async function teleportToRemote(options: {
       path: (gitSource ? 'github' : seedBundleFileId ? 'bundle' : 'empty') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
     });
     if (!gitSource && !seedBundleFileId) {
-      logForDebugging('[teleportToRemote] No repository detected â€” session will have an empty sandbox');
+      logForDebugging('[teleportToRemote] No repository detected â€?session will have an empty sandbox');
     }
 
     // Fetch available environments
@@ -1075,7 +1072,7 @@ export async function teleportToRemote(options: {
       const retried = await fetchEnvironments();
       cloudEnv = retried?.find(env => env.kind === 'anthropic_cloud');
       if (!cloudEnv) {
-        logError(new Error(`No anthropic_cloud environment available after retry (got: ${(retried ?? environments).map(e => `${e.name} (${e.kind})`).join(', ')}). Silent byoc fallthrough would launch into a dead env â€” fail fast instead.`));
+        logError(new Error(`No anthropic_cloud environment available after retry (got: ${(retried ?? environments).map(e => `${e.name} (${e.kind})`).join(', ')}). Silent byoc fallthrough would launch into a dead env â€?fail fast instead.`));
         return null;
       }
       if (retried) environments = retried;
@@ -1114,11 +1111,11 @@ export async function teleportToRemote(options: {
       })
     };
 
-    // CreateCCRSessionPayload has no permission_mode field â€” a top-level
+    // CreateCCRSessionPayload has no permission_mode field â€?a top-level
     // body entry is silently dropped by the proto parser server-side.
     // Instead prepend a set_permission_mode control_request event. Initial
     // events are written to threadstore before the container connects, so
-    // the CLI applies the mode before the first user turn â€” no readiness race.
+    // the CLI applies the mode before the first user turn â€?no readiness race.
     const events: Array<{
       type: 'event';
       data: Record<string, unknown>;

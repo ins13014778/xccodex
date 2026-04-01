@@ -30,7 +30,7 @@ const GUI_EDITORS = [
 ]
 
 // Editors that accept +N as a goto-line argument. The Windows default
-// ('start /wait notepad') does not â€” notepad treats +42 as a filename.
+// ('start /wait notepad') does not â€?notepad treats +42 as a filename.
 const PLUS_N_EDITORS = /\b(vi|vim|nvim|nano|emacs|pico|micro|helix|hx)\b/
 
 // VS Code and forks use -g file:line. subl uses bare file:line (no -g).
@@ -39,12 +39,11 @@ const VSCODE_FAMILY = new Set(['code', 'cursor', 'windsurf', 'codium'])
 /**
  * Classify the editor as GUI or not. Returns the matched GUI family name
  * for goto-line argv selection, or undefined for terminal editors.
- * Note: this is classification only â€” spawn the user's actual binary, not
+ * Note: this is classification only â€?spawn the user's actual binary, not
  * this return value, so `code-insiders` / absolute paths are preserved.
  *
  * Uses basename so /home/alice/code/bin/nvim doesn't match 'code' via the
- * directory component. code-insiders â†’ still matches 'code', /usr/bin/code â†’
- * 'code' â†’ matches.
+ * directory component. code-insiders â†?still matches 'code', /usr/bin/code â†? * 'code' â†?matches.
  */
 export function classifyGuiEditor(editor: string): string | undefined {
   const base = basename(editor.split(' ')[0] ?? '')
@@ -69,8 +68,8 @@ function guiGotoArgv(
 /**
  * Launch a file in the user's external editor.
  *
- * For GUI editors (code, subl, etc.): spawns detached â€” the editor opens
- * in a separate window and Claude Code stays interactive.
+ * For GUI editors (code, subl, etc.): spawns detached â€?the editor opens
+ * in a separate window and xccodex stays interactive.
  *
  * For terminal editors (vim, nvim, nano, etc.): blocks via Ink's alt-screen
  * handoff until the editor exits. This is the same dance as editFileInEditor()
@@ -98,20 +97,19 @@ export function openFileInExternalEditor(
     const detachedOpts: SpawnOptions = { detached: true, stdio: 'ignore' }
     let child
     if (process.platform === 'win32') {
-      // shell: true on win32 so code.cmd / cursor.cmd / windsurf.cmd resolve â€”
-      // CreateProcess can't execute .cmd/.bat directly. Assemble quoted command
+      // shell: true on win32 so code.cmd / cursor.cmd / windsurf.cmd resolve â€?      // CreateProcess can't execute .cmd/.bat directly. Assemble quoted command
       // string; cmd.exe doesn't expand $() or backticks inside double quotes.
       // Quote each arg so paths with spaces survive the shell join.
       const gotoStr = gotoArgv.map(a => `"${a}"`).join(' ')
       child = spawn(`${editor} ${gotoStr}`, { ...detachedOpts, shell: true })
     } else {
-      // POSIX: argv array with no shell â€” injection-safe. shell: true would
+      // POSIX: argv array with no shell â€?injection-safe. shell: true would
       // expand $() / backticks inside double quotes, and filePath is
       // filesystem-sourced (possible RCE from a malicious repo filename).
       child = spawn(base, [...editorArgs, ...gotoArgv], detachedOpts)
     }
     // spawn() emits ENOENT asynchronously. ENOENT on $VISUAL/$EDITOR is a
-    // user-config error, not an internal bug â€” don't pollute error telemetry.
+    // user-config error, not an internal bug â€?don't pollute error telemetry.
     child.on('error', e =>
       logForDebugging(`editor spawn failed: ${e}`, { level: 'error' }),
     )
@@ -119,11 +117,11 @@ export function openFileInExternalEditor(
     return true
   }
 
-  // Terminal editor â€” needs alt-screen handoff since it takes over the
+  // Terminal editor â€?needs alt-screen handoff since it takes over the
   // terminal. Blocks until the editor exits.
   const inkInstance = instances.get(process.stdout)
   if (!inkInstance) return false
-  // Only prepend +N for editors known to support it â€” notepad treats +42 as a
+  // Only prepend +N for editors known to support it â€?notepad treats +42 as a
   // filename to open. Test basename so /home/vim/bin/kak doesn't match 'vim'
   // via the directory segment.
   const useGotoLine = line && PLUS_N_EDITORS.test(basename(base))

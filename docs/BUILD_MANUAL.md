@@ -1,223 +1,137 @@
-﻿# xccode Build and Packaging Manual
+﻿# xccodex Build Manual
 
-This manual documents how to build, run, and package the current `xccode` source tree.
+This document records the practical build, test, run, and packaging flow for the current `xccodex` repository.
 
-> Important: the npm package is **not published yet**. Use this manual to build from source and validate packaging. Do not describe the package as already released.
-
-## 1. Environment requirements
-
-Required:
+## 1. Requirements
 
 - Node.js `>= 18`
 - npm
-- access to the npm registry for dependency install
+- internet access for dependency install
 
 Recommended:
 
 - Node.js 20+
-- PowerShell 7+ on Windows if you plan to use the PowerShell examples below
+- PowerShell 7+ on Windows
 
 ## 2. Install dependencies
-
-From the repository root:
 
 ```bash
 npm install
 ```
 
-If you need a local npm cache inside the repository:
-
-```bash
-npm_config_cache=.npm-cache npm install
-```
-
-## 3. Build the CLI
+## 3. Build
 
 ```bash
 npm run build
 ```
 
-Expected build outputs:
+Expected outputs:
 
 - `dist/cli.js`
-- `dist/cli.js.map`
+- `dist/xccodex.js`
 
-## 4. Run the built CLI
+## 4. Run
 
-Run the built artifact directly:
+Main CLI:
 
 ```bash
 npm start
 ```
 
-Repository helper:
+Source-tree helper:
 
 ```bash
 npm run cli:run
 ```
 
-One-shot check:
-
-```bash
-npm run cli:run -- -p "Reply with exactly: OK"
-```
-
-`npm run cli:run` is a repository helper around `dist/cli.js`. It is useful during source development because it mirrors environment config into the local run.
-
-One-click novice launcher:
+Novice launcher:
 
 ```bash
 node .\dist\xccodex.js
 ```
 
-Force the wizard even if config already exists:
+Force reconfiguration:
 
 ```bash
 node .\dist\xccodex.js --reconfigure
 ```
 
-## 5. Configuration and instruction file locations
+## 5. Provider configuration
 
-Preferred current locations:
-
-| Purpose | Preferred path |
-| --- | --- |
-| Global settings | `~/.xccode/settings.json` |
-| Project settings | `.xccode/settings.json` |
-| Local uncommitted settings | `.xccode/settings.local.json` |
-| User instruction file | `~/.xccode/XCCODE.md` |
-| Project instruction file | `./XCCODE.md` |
-
-Compatibility notes:
-
-- legacy `~/.claude/settings.json` may still be read by compatibility code paths
-- legacy `CLAUDE.md`, `.claude/CLAUDE.md`, and `.claude/rules/*.md` are still relevant during migration
-- new docs, examples, and onboarding should use `xccode`, `.xccode`, `~/.xccode`, and `XCCODE.md`
-
-## 6. `~/.xccode/settings.json` example
-
-```json
-{
-  "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "model": "claude-sonnet-4-5",
-  "permissions": {
-    "defaultMode": "acceptEdits"
-  },
-  "env": {
-    "ANTHROPIC_API_KEY": "your-api-key"
-  }
-}
-```
-
-## 7. PowerShell environment variable setup
-
-Current shell session:
-
-```powershell
-$env:ANTHROPIC_API_KEY = 'your-api-key'
-$env:XCCODE_USE_OPENAI_COMPATIBLE = '1'
-$env:XCCODE_BASE_URL = 'https://api.openai.com/v1'
-$env:XCCODE_API_KEY = 'your-openai-compatible-key'
-$env:XCCODE_MODEL = 'gpt-4.1-mini'
-```
-
-Persist for future shells:
-
-```powershell
-[Environment]::SetEnvironmentVariable('ANTHROPIC_API_KEY', 'your-api-key', 'User')
-[Environment]::SetEnvironmentVariable('XCCODE_USE_OPENAI_COMPATIBLE', '1', 'User')
-[Environment]::SetEnvironmentVariable('XCCODE_BASE_URL', 'https://api.openai.com/v1', 'User')
-[Environment]::SetEnvironmentVariable('XCCODE_API_KEY', 'your-openai-compatible-key', 'User')
-[Environment]::SetEnvironmentVariable('XCCODE_MODEL', 'gpt-4.1-mini', 'User')
-```
-
-## 8. OpenAI-compatible adapter: current scope
-
-The current `openaiCompatible` path is a minimal compatibility layer.
-
-Supported today:
-
-- basic text-only chat
-- non-stream completion + synthetic stream wrapper
-
-Not supported today:
-
-- tools / tool calls
-- thinking / reasoning controls
-- structured output
-- full Anthropic semantic compatibility
-- broad multimodal compatibility
-
-Treat it as a narrow bridge for `/chat/completions`-style plain text chat only.
-
-## 9. Provider command
-
-`xccode` now supports an in-app provider configuration command:
+In-app commands:
 
 ```text
-/provider set
 /provider show
+/provider set
 /provider clear
 ```
 
-Direct argument example:
+OpenAI-compatible example:
 
 ```text
 /provider set --protocol openai-compatible --base-url https://api.deepseek.com/v1 --api-key your_key --model deepseek-chat
 ```
 
-The command writes configuration to `~/.xccode/settings.json`.
+Anthropic-compatible example:
 
-Supported protocols:
+```text
+/provider set --protocol anthropic-compatible --base-url https://your-gateway.example/v1/messages --api-key your_key --model claude-3-5-sonnet
+```
 
-- `anthropic-compatible`
-- `openai-compatible`
+## 6. Current config paths
 
-Behavior:
+Current compatibility paths used by the implementation:
 
-- `anthropic-compatible` reuses the project's existing Anthropic-compatible path
-- `openai-compatible` uses the current minimal adapter layer
-- `show` masks the API key
-- `clear` removes the saved provider configuration
+- user settings: `~/.xccode/settings.json`
+- project settings: `.xccode/settings.json`
+- local override: `.xccode/settings.local.json`
+- user rules: `~/.xccode/XCCODE.md`
+- project rules: `./XCCODE.md`
 
-## 10. Repository helper note
+## 7. Environment variables
 
-The source-tree helper script (`npm run cli:run`) currently:
+Current provider-related env vars:
 
-- uses a repo-local runtime config directory for isolation during development
-- reads env values from `~/.xccode/settings.json` first when available
-- falls back to legacy `~/.claude/settings.json` if needed
+- `XCCODE_PROVIDER_PROTOCOL`
+- `XCCODE_BASE_URL`
+- `XCCODE_API_KEY`
+- `XCCODE_MODEL`
+- `XCCODE_USE_OPENAI_COMPATIBLE`
 
-That behavior is for source-tree development convenience. Public docs should still point users to `~/.xccode/settings.json` and `XCCODE.md`.
+PowerShell example:
 
-## 11. Packaging / pre-release checklist
+```powershell
+$env:XCCODE_USE_OPENAI_COMPATIBLE = '1'
+$env:XCCODE_BASE_URL = 'https://api.openai.com/v1'
+$env:XCCODE_API_KEY = 'your-api-key'
+$env:XCCODE_MODEL = 'gpt-4.1-mini'
+```
 
-Before calling a build “ready to publish”, run at least:
+## 8. Validation before publish
 
 ```bash
+npm test
 npm run build
 npm run pack:check
 ```
 
-What `npm run pack:check` does:
+Manual help checks:
 
 ```bash
-npm pack --dry-run
+node .\dist\cli.js --help
+node .\dist\xccodex.js --help
 ```
 
-Use it to confirm:
+## 9. Publish
 
-- the tarball contains the expected built assets and docs
-- the README is included and reflects `xccode` branding
-- package metadata is aligned with the current public positioning
-- docs do not claim the package is already live on npm
+Public npm publish command:
 
-## 12. README release-note expectations
+```bash
+npm publish --access public
+```
 
-The README should clearly state:
+Package name:
 
-- package name: `xccode`
-- preferred config root: `~/.xccode`
-- preferred instruction file: `XCCODE.md`
-- migration compatibility with legacy `CLAUDE.md`
-- OpenAI-compatible is intentionally limited and should not be over-promised
+```text
+xccodex
+```

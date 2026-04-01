@@ -1,14 +1,14 @@
 /**
  * Terminal Launcher
  *
- * Detects the user's preferred terminal emulator and launches Claude Code
+ * Detects the user's preferred terminal emulator and launches xccodex
  * inside it. Used by the deep link protocol handler when invoked by the OS
  * (i.e., not already running inside a terminal).
  *
  * Platform support:
- *   macOS  â€” Terminal.app, iTerm2, Ghostty, Kitty, Alacritty, WezTerm
- *   Linux  â€” $TERMINAL, x-terminal-emulator, gnome-terminal, konsole, etc.
- *   Windows â€” Windows Terminal (wt.exe), PowerShell, cmd.exe
+ *   macOS  â€?Terminal.app, iTerm2, Ghostty, Kitty, Alacritty, WezTerm
+ *   Linux  â€?$TERMINAL, x-terminal-emulator, gnome-terminal, konsole, etc.
+ *   Windows â€?Windows Terminal (wt.exe), PowerShell, cmd.exe
  */
 
 import { spawn } from 'child_process'
@@ -63,7 +63,7 @@ const LINUX_TERMINALS = [
  */
 async function detectMacosTerminal(): Promise<TerminalInfo> {
   // Stored preference from a previous interactive session. This is the only
-  // signal that survives into the headless LaunchServices context â€” the env
+  // signal that survives into the headless LaunchServices context â€?the env
   // var check below never hits when we're launched from a browser link.
   const stored = getGlobalConfig().deepLinkTerminal
   if (stored) {
@@ -73,7 +73,7 @@ async function detectMacosTerminal(): Promise<TerminalInfo> {
     }
   }
 
-  // Check the TERM_PROGRAM env var â€” if set, the user has a clear preference.
+  // Check the TERM_PROGRAM env var â€?if set, the user has a clear preference.
   // TERM_PROGRAM may include a .app suffix (e.g., "iTerm.app"), so strip it.
   const termProgram = process.env.TERM_PROGRAM
   if (termProgram) {
@@ -194,17 +194,17 @@ export async function detectTerminal(): Promise<TerminalInfo | null> {
 }
 
 /**
- * Launch Claude Code in the detected terminal emulator.
+ * Launch xccodex in the detected terminal emulator.
  *
  * Pure argv paths (no shell, user input never touches an interpreter):
- *   macOS â€” Ghostty, Alacritty, Kitty, WezTerm (via open -na --args)
- *   Linux â€” all ten in LINUX_TERMINALS
- *   Windows â€” Windows Terminal
+ *   macOS â€?Ghostty, Alacritty, Kitty, WezTerm (via open -na --args)
+ *   Linux â€?all ten in LINUX_TERMINALS
+ *   Windows â€?Windows Terminal
  *
  * Shell-string paths (user input is shell-quoted and relied upon):
- *   macOS â€” iTerm2, Terminal.app (AppleScript `write text` / `do script`
+ *   macOS â€?iTerm2, Terminal.app (AppleScript `write text` / `do script`
  *           are inherently shell-interpreted; no argv interface exists)
- *   Windows â€” PowerShell -Command, cmd.exe /k (no argv exec mode)
+ *   Windows â€?PowerShell -Command, cmd.exe /k (no argv exec mode)
  *
  * For pure-argv paths: claudePath, --prefill, query, cwd travel as distinct
  * argv elements end-to-end. No sh -c. No shellQuote(). The terminal does
@@ -266,7 +266,7 @@ async function launchMacosTerminal(
     case 'iTerm': {
       const shCmd = buildShellCommand(claudePath, claudeArgs, cwd)
       // If iTerm isn't running, `tell application` launches it and iTerm's
-      // default startup behavior opens a window â€” so `create window` would
+      // default startup behavior opens a window â€?so `create window` would
       // make a second one. Check `running` first: if already running (even
       // with zero windows), create a window; if not, `activate` lets iTerm's
       // startup create the first window.
@@ -300,8 +300,7 @@ end tell`
     }
 
     // --- PURE ARGV PATHS (no shell, no shellQuote) ---
-    // open -na <App> --args <argv> â†’ app receives argv verbatim â†’
-    // terminal's native --working-directory + -e exec the command directly.
+    // open -na <App> --args <argv> â†?app receives argv verbatim â†?    // terminal's native --working-directory + -e exec the command directly.
 
     case 'Ghostty': {
       const args = [
@@ -366,7 +365,7 @@ async function launchLinuxTerminal(
   // (or equivalent) sets cwd natively; the command is exec'd directly.
   // For the few terminals without a cwd flag (xterm, and the opaque
   // x-terminal-emulator / $TERMINAL), spawn({cwd}) sets the terminal
-  // process's cwd â€” most inherit it for the child.
+  // process's cwd â€?most inherit it for the child.
 
   let args: string[]
   let spawnCwd: string | undefined
@@ -406,7 +405,7 @@ async function launchLinuxTerminal(
       args.push(claudePath, ...claudeArgs)
       break
     default:
-      // xterm, x-terminal-emulator, $TERMINAL â€” no reliable cwd flag.
+      // xterm, x-terminal-emulator, $TERMINAL â€?no reliable cwd flag.
       // spawn({cwd}) sets the terminal's own cwd; most inherit.
       args = ['-e', claudePath, ...claudeArgs]
       spawnCwd = cwd
@@ -440,7 +439,7 @@ async function launchWindowsTerminal(
     case 'PowerShell': {
       // Single-quoted PowerShell strings have NO escape sequences (only
       // '' for a literal quote). Double-quoted strings interpret backtick
-      // escapes â€” a query containing `" could break out.
+      // escapes â€?a query containing `" could break out.
       const cdCmd = cwd ? `Set-Location ${psQuote(cwd)}; ` : ''
       args.push(
         '-NoExit',
@@ -529,7 +528,7 @@ function appleScriptQuote(s: string): string {
 
 /**
  * PowerShell single-quoted string. The ONLY special sequence is '' for a
- * literal single quote â€” no backtick escapes, no variable expansion, no
+ * literal single quote â€?no backtick escapes, no variable expansion, no
  * subexpressions. This is the safe PowerShell quoting; double-quoted
  * strings interpret `n `t `" etc. and can be escaped out of.
  */
@@ -539,7 +538,7 @@ function psQuote(s: string): string {
 
 /**
  * cmd.exe argument quoting. cmd.exe does NOT use CommandLineToArgvW-style
- * backslash escaping â€” it toggles its quoting state on every raw "
+ * backslash escaping â€?it toggles its quoting state on every raw "
  * character, so an embedded " breaks out of the quoted region and exposes
  * metacharacters (& | < > ^) to cmd.exe interpretation = command injection.
  *

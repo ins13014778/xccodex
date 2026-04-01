@@ -11,7 +11,7 @@ export type ReservedShortcut = {
 }
 
 /**
- * Shortcuts that cannot be rebound - they are hardcoded in Claude Code.
+ * Shortcuts that cannot be rebound - they are hardcoded in xccodex.
  */
 export const NON_REBINDABLE: ReservedShortcut[] = [
   {
@@ -85,7 +85,7 @@ export function getReservedShortcuts(): ReservedShortcut[] {
 /**
  * Normalize a key string for comparison (lowercase, sorted modifiers).
  * Chords (space-separated steps like "ctrl+x ctrl+b") are normalized
- * per-step â€” splitting on '+' first would mangle "x ctrl" into a mainKey
+ * per-step â€?splitting on '+' first would mangle "x ctrl" into a mainKey
  * overwritten by the next step, collapsing the chord into its last key.
  */
 export function normalizeKeyForComparison(key: string): string {

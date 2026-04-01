@@ -1,6 +1,6 @@
 /**
  * Privacy level controls how much nonessential network traffic and telemetry
- * Claude Code generates.
+ * xccodex generates.
  *
  * Levels are ordered by restrictiveness:
  *   default < no-telemetry < essential-traffic
@@ -11,8 +11,8 @@
  *                       (telemetry + auto-updates, grove, release notes, model capabilities, etc.).
  *
  * The resolved level is the most restrictive signal from:
- *   CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC  â†’  essential-traffic
- *   DISABLE_TELEMETRY                         â†’  no-telemetry
+ *   CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC  â†? essential-traffic
+ *   DISABLE_TELEMETRY                         â†? no-telemetry
  */
 
 type PrivacyLevel = 'default' | 'no-telemetry' | 'essential-traffic'

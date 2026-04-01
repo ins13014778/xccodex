@@ -195,7 +195,7 @@ export function getRequestTooLargeErrorMessage(): string {
     : `Request too large (${limits}). Double press esc to go back and try with a smaller file.`
 }
 export const OAUTH_ORG_NOT_ALLOWED_ERROR_MESSAGE =
-  'Your account does not have access to Claude Code. Please run /login.'
+  'Your account does not have access to xccodex. Please run /login.'
 
 export function getTokenRevokedErrorMessage(): string {
   return getIsNonInteractiveSession()
@@ -210,7 +210,7 @@ export function getOauthOrgNotAllowedErrorMessage(): string {
 }
 
 /**
- * Check if we're in CCR (Claude Code Remote) mode.
+ * Check if we're in CCR (xccodex Remote) mode.
  * In CCR mode, auth is handled via JWTs provided by the infrastructure,
  * not via /login. Transient auth errors should suggest retrying, not logging in.
  */
@@ -534,7 +534,7 @@ export function getAssistantMessageFromError(
       })
     }
 
-    // No quota headers â€” this is NOT a quota limit. Surface what the API actually
+    // No quota headers â€?this is NOT a quota limit. Surface what the API actually
     // said instead of a generic "Rate limit reached". Entitlement rejections
     // (e.g. 1M context without Extra Usage) and infra capacity 429s land here.
     if (error.message.includes('Extra usage is required for long context')) {
@@ -547,12 +547,12 @@ export function getAssistantMessageFromError(
       })
     }
     // SDK's APIError.makeMessage prepends "429 " and JSON-stringifies the body
-    // when there's no top-level .message â€” extract the inner error.message.
+    // when there's no top-level .message â€?extract the inner error.message.
     const stripped = error.message.replace(/^429\s+/, '')
     const innerMessage = stripped.match(/"message"\s*:\s*"([^"]*)"/)?.[1]
     const detail = innerMessage || stripped
     return createAssistantAPIErrorMessage({
-      content: `${API_ERROR_MESSAGE_PREFIX}: Request rejected (429) Â· ${detail || 'this may be a temporary capacity issue â€” check status.anthropic.com'}`,
+      content: `${API_ERROR_MESSAGE_PREFIX}: Request rejected (429) Â· ${detail || 'this may be a temporary capacity issue â€?check status.anthropic.com'}`,
       error: 'rate_limit',
     })
   }
@@ -564,7 +564,7 @@ export function getAssistantMessageFromError(
     error.message.toLowerCase().includes('prompt is too long')
   ) {
     // Content stays generic (UI matches on exact string). The raw error with
-    // token counts goes into errorDetails â€” reactive compact's retry loop
+    // token counts goes into errorDetails â€?reactive compact's retry loop
     // parses the gap from there via getPromptTooLongTokenGap.
     return createAssistantAPIErrorMessage({
       content: PROMPT_TOO_LONG_ERROR_MESSAGE,
@@ -747,7 +747,7 @@ export function getAssistantMessageFromError(
     })
   }
 
-  // Check for invalid model name error for Ant users. Claude Code may be
+  // Check for invalid model name error for Ant users. xccodex may be
   // defaulting to a custom internal-only model for Ants, and there might be
   // Ants using new or unknown org IDs that haven't been gated in.
   if (
@@ -778,7 +778,7 @@ export function getAssistantMessageFromError(
       error: 'billing_error',
     })
   }
-  // "Organization has been disabled" â€” commonly a stale ANTHROPIC_API_KEY
+  // "Organization has been disabled" â€?commonly a stale ANTHROPIC_API_KEY
   // from a previous employer/project overriding subscription auth. Only handle
   // the env-var case; apiKeyHelper and /login-managed keys mean the active
   // auth's org is genuinely disabled with no dormant fallback to point at.
@@ -798,7 +798,7 @@ export function getAssistantMessageFromError(
       !isClaudeAISubscriber()
     ) {
       const hasStoredOAuth = getClaudeAIOAuthTokens()?.accessToken != null
-      // Not 'authentication_failed' â€” that triggers VS Code's showLogin(), but
+      // Not 'authentication_failed' â€?that triggers VS Code's showLogin(), but
       // login can't fix this (approved env var keeps overriding OAuth). The fix
       // is configuration-based (unset the var), so invalid_request is correct.
       return createAssistantAPIErrorMessage({
@@ -899,7 +899,7 @@ export function getAssistantMessageFromError(
     })
   }
 
-  // 404 Not Found â€” usually means the selected model doesn't exist or isn't
+  // 404 Not Found â€?usually means the selected model doesn't exist or isn't
   // available. Guide the user to /model so they can pick a valid one.
   // For 3P users, suggest a specific fallback model they can try.
   if (error instanceof APIError && error.status === 404) {
@@ -913,7 +913,7 @@ export function getAssistantMessageFromError(
     })
   }
 
-  // Connection errors (non-timeout) â€” use formatAPIError for detailed messages
+  // Connection errors (non-timeout) â€?use formatAPIError for detailed messages
   if (error instanceof APIConnectionError) {
     return createAssistantAPIErrorMessage({
       content: `${API_ERROR_MESSAGE_PREFIX}: ${formatAPIError(error)}`,
@@ -941,7 +941,7 @@ function get3PModelFallbackSuggestion(model: string): string | undefined {
   if (getAPIProvider() === 'firstParty') {
     return undefined
   }
-  // @[MODEL LAUNCH]: Add a fallback suggestion chain for the new model â†’ previous version for 3P
+  // @[MODEL LAUNCH]: Add a fallback suggestion chain for the new model â†?previous version for 3P
   const m = model.toLowerCase()
   // If the failing model looks like an Opus 4.6 variant, suggest the default Opus (4.1 for 3P)
   if (m.includes('opus-4-6') || m.includes('opus_4_6')) {
@@ -1192,8 +1192,8 @@ export function getErrorMessageIfRefusal(
   logEvent('tengu_refusal_api_response', {})
 
   const baseMessage = getIsNonInteractiveSession()
-    ? `${API_ERROR_MESSAGE_PREFIX}: Claude Code is unable to respond to this request, which appears to violate our Usage Policy (https://www.anthropic.com/legal/aup). Try rephrasing the request or attempting a different approach.`
-    : `${API_ERROR_MESSAGE_PREFIX}: Claude Code is unable to respond to this request, which appears to violate our Usage Policy (https://www.anthropic.com/legal/aup). Please double press esc to edit your last message or start a new session for Claude Code to assist with a different task.`
+    ? `${API_ERROR_MESSAGE_PREFIX}: xccodex is unable to respond to this request, which appears to violate our Usage Policy (https://www.anthropic.com/legal/aup). Try rephrasing the request or attempting a different approach.`
+    : `${API_ERROR_MESSAGE_PREFIX}: xccodex is unable to respond to this request, which appears to violate our Usage Policy (https://www.anthropic.com/legal/aup). Please double press esc to edit your last message or start a new session for xccodex to assist with a different task.`
 
   const modelSuggestion =
     model !== 'claude-sonnet-4-20250514'

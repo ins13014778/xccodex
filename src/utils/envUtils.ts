@@ -49,7 +49,7 @@ export function isEnvDefinedFalsy(
 }
 
 /**
- * --bare / CLAUDE_CODE_SIMPLE â€” skip hooks, LSP, plugin sync, skill dir-walk,
+ * --bare / CLAUDE_CODE_SIMPLE â€?skip hooks, LSP, plugin sync, skill dir-walk,
  * attribution, background prefetches, and ALL keychain/credential reads.
  * Auth is strictly ANTHROPIC_API_KEY env or apiKeyHelper from --settings.
  * Explicit CLI flags (--plugin-dir, --add-dir, --mcp-config) still honored.
@@ -57,7 +57,7 @@ export function isEnvDefinedFalsy(
  *
  * Checks argv directly (in addition to the env var) because several gates
  * run before main.tsx's action handler sets CLAUDE_CODE_SIMPLE=1 from --bare
- * â€” notably startKeychainPrefetch() at main.tsx top-level.
+ * â€?notably startKeychainPrefetch() at main.tsx top-level.
  */
 export function isBareMode(): boolean {
   return (
@@ -125,7 +125,7 @@ export function isRunningOnHomespace(): boolean {
 }
 
 /**
- * Conservative check for whether Claude Code is running inside a protected
+ * Conservative check for whether xccodex is running inside a protected
  * (privileged or ASL3+) COO namespace or cluster.
  *
  * Conservative means: when signals are ambiguous, assume protected. We would
@@ -150,7 +150,7 @@ export function isInProtectedNamespace(): boolean {
 
 // @[MODEL LAUNCH]: Add a Vertex region override env var for the new model.
 /**
- * Model prefix â†’ env var for Vertex region overrides.
+ * Model prefix â†?env var for Vertex region overrides.
  * Order matters: more specific prefixes must come before less specific ones
  * (e.g., 'claude-opus-4-1' before 'claude-opus-4').
  */

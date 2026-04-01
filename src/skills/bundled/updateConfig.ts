@@ -22,7 +22,7 @@ Choose the appropriate file based on scope:
 | \`.claude/settings.json\` | Project | Commit | Team-wide hooks, permissions, plugins |
 | \`.claude/settings.local.json\` | Project | Gitignore | Personal overrides for this project |
 
-Settings load in order: user â†’ project â†’ local (later overrides earlier).
+Settings load in order: user â†?project â†?local (later overrides earlier).
 
 ## Settings Schema Reference
 
@@ -109,7 +109,7 @@ Plugin syntax: \`plugin-name@source\` where source is \`claude-code-marketplace\
 
 const HOOKS_DOCS = `## Hooks Configuration
 
-Hooks run commands at specific points in Claude Code's lifecycle.
+Hooks run commands at specific points in xccodex's lifecycle.
 
 ### Hook Structure
 \`\`\`json
@@ -268,55 +268,55 @@ echo '{"systemMessage": "Session complete!"}'
 
 const HOOK_VERIFICATION_FLOW = `## Constructing a Hook (with verification)
 
-Given an event, matcher, target file, and desired behavior, follow this flow. Each step catches a different failure class â€” a hook that silently does nothing is worse than no hook.
+Given an event, matcher, target file, and desired behavior, follow this flow. Each step catches a different failure class â€?a hook that silently does nothing is worse than no hook.
 
 1. **Dedup check.** Read the target file. If a hook already exists on the same event+matcher, show the existing command and ask: keep it, replace it, or add alongside.
 
-2. **Construct the command for THIS project â€” don't assume.** The hook receives JSON on stdin. Build a command that:
-   - Extracts any needed payload safely â€” use \`jq -r\` into a quoted variable or \`{ read -r f; ... "$f"; }\`, NOT unquoted \`| xargs\` (splits on spaces)
+2. **Construct the command for THIS project â€?don't assume.** The hook receives JSON on stdin. Build a command that:
+   - Extracts any needed payload safely â€?use \`jq -r\` into a quoted variable or \`{ read -r f; ... "$f"; }\`, NOT unquoted \`| xargs\` (splits on spaces)
    - Invokes the underlying tool the way this project runs it (npx/bunx/yarn/pnpm? Makefile target? globally-installed?)
    - Skips inputs the tool doesn't handle (formatters often have \`--ignore-unknown\`; if not, guard by extension)
-   - Stays RAW for now â€” no \`|| true\`, no stderr suppression. You'll wrap it after the pipe-test passes.
+   - Stays RAW for now â€?no \`|| true\`, no stderr suppression. You'll wrap it after the pipe-test passes.
 
 3. **Pipe-test the raw command.** Synthesize the stdin payload the hook will receive and pipe it directly:
    - \`Pre|PostToolUse\` on \`Write|Edit\`: \`echo '{"tool_name":"Edit","tool_input":{"file_path":"<a real file from this repo>"}}' | <cmd>\`
    - \`Pre|PostToolUse\` on \`Bash\`: \`echo '{"tool_name":"Bash","tool_input":{"command":"ls"}}' | <cmd>\`
    - \`Stop\`/\`UserPromptSubmit\`/\`SessionStart\`: most commands don't read stdin, so \`echo '{}' | <cmd>\` suffices
 
-   Check exit code AND side effect (file actually formatted, test actually ran). If it fails you get a real error â€” fix (wrong package manager? tool not installed? jq path wrong?) and retest. Once it works, wrap with \`2>/dev/null || true\` (unless the user wants a blocking check).
+   Check exit code AND side effect (file actually formatted, test actually ran). If it fails you get a real error â€?fix (wrong package manager? tool not installed? jq path wrong?) and retest. Once it works, wrap with \`2>/dev/null || true\` (unless the user wants a blocking check).
 
-4. **Write the JSON.** Merge into the target file (schema shape in the "Hook Structure" section above). If this creates \`.claude/settings.local.json\` for the first time, add it to .gitignore â€” the Write tool doesn't auto-gitignore it.
+4. **Write the JSON.** Merge into the target file (schema shape in the "Hook Structure" section above). If this creates \`.claude/settings.local.json\` for the first time, add it to .gitignore â€?the Write tool doesn't auto-gitignore it.
 
 5. **Validate syntax + schema in one shot:**
 
    \`jq -e '.hooks.<event>[] | select(.matcher == "<matcher>") | .hooks[] | select(.type == "command") | .command' <target-file>\`
 
-   Exit 0 + prints your command = correct. Exit 4 = matcher doesn't match. Exit 5 = malformed JSON or wrong nesting. A broken settings.json silently disables ALL settings from that file â€” fix any pre-existing malformation too.
+   Exit 0 + prints your command = correct. Exit 4 = matcher doesn't match. Exit 5 = malformed JSON or wrong nesting. A broken settings.json silently disables ALL settings from that file â€?fix any pre-existing malformation too.
 
-6. **Prove the hook fires** â€” only for \`Pre|PostToolUse\` on a matcher you can trigger in-turn (\`Write|Edit\` via Edit, \`Bash\` via Bash). \`Stop\`/\`UserPromptSubmit\`/\`SessionStart\` fire outside this turn â€” skip to step 7.
+6. **Prove the hook fires** â€?only for \`Pre|PostToolUse\` on a matcher you can trigger in-turn (\`Write|Edit\` via Edit, \`Bash\` via Bash). \`Stop\`/\`UserPromptSubmit\`/\`SessionStart\` fire outside this turn â€?skip to step 7.
 
-   For a **formatter** on \`PostToolUse\`/\`Write|Edit\`: introduce a detectable violation via Edit (two consecutive blank lines, bad indentation, missing semicolon â€” something this formatter corrects; NOT trailing whitespace, Edit strips that before writing), re-read, confirm the hook **fixed** it. For **anything else**: temporarily prefix the command in settings.json with \`echo "$(date) hook fired" >> /tmp/claude-hook-check.txt; \`, trigger the matching tool (Edit for \`Write|Edit\`, a harmless \`true\` for \`Bash\`), read the sentinel file.
+   For a **formatter** on \`PostToolUse\`/\`Write|Edit\`: introduce a detectable violation via Edit (two consecutive blank lines, bad indentation, missing semicolon â€?something this formatter corrects; NOT trailing whitespace, Edit strips that before writing), re-read, confirm the hook **fixed** it. For **anything else**: temporarily prefix the command in settings.json with \`echo "$(date) hook fired" >> /tmp/claude-hook-check.txt; \`, trigger the matching tool (Edit for \`Write|Edit\`, a harmless \`true\` for \`Bash\`), read the sentinel file.
 
-   **Always clean up** â€” revert the violation, strip the sentinel prefix â€” whether the proof passed or failed.
+   **Always clean up** â€?revert the violation, strip the sentinel prefix â€?whether the proof passed or failed.
 
-   **If proof fails but pipe-test passed and \`jq -e\` passed**: the settings watcher isn't watching \`.claude/\` â€” it only watches directories that had a settings file when this session started. The hook is written correctly. Tell the user to open \`/hooks\` once (reloads config) or restart â€” you can't do this yourself; \`/hooks\` is a user UI menu and opening it ends this turn.
+   **If proof fails but pipe-test passed and \`jq -e\` passed**: the settings watcher isn't watching \`.claude/\` â€?it only watches directories that had a settings file when this session started. The hook is written correctly. Tell the user to open \`/hooks\` once (reloads config) or restart â€?you can't do this yourself; \`/hooks\` is a user UI menu and opening it ends this turn.
 
-7. **Handoff.** Tell the user the hook is live (or needs \`/hooks\`/restart per the watcher caveat). Point them at \`/hooks\` to review, edit, or disable it later. The UI only shows "Ran N hooks" if a hook errors or is slow â€” silent success is invisible by design.
+7. **Handoff.** Tell the user the hook is live (or needs \`/hooks\`/restart per the watcher caveat). Point them at \`/hooks\` to review, edit, or disable it later. The UI only shows "Ran N hooks" if a hook errors or is slow â€?silent success is invisible by design.
 `
 
 const UPDATE_CONFIG_PROMPT = `# Update Config Skill
 
-Modify Claude Code configuration by updating settings.json files.
+Modify xccodex configuration by updating settings.json files.
 
 ## When Hooks Are Required (Not Memory)
 
 If the user wants something to happen automatically in response to an EVENT, they need a **hook** configured in settings.json. Memory/preferences cannot trigger automated actions.
 
 **These require hooks:**
-- "Before compacting, ask me what to preserve" â†’ PreCompact hook
-- "After writing files, run prettier" â†’ PostToolUse hook with Write|Edit matcher
-- "When I run bash commands, log them" â†’ PreToolUse hook with Bash matcher
-- "Always run tests after code changes" â†’ PostToolUse hook
+- "Before compacting, ask me what to preserve" â†?PreCompact hook
+- "After writing files, run prettier" â†?PostToolUse hook with Write|Edit matcher
+- "When I run bash commands, log them" â†?PreToolUse hook with Bash matcher
+- "Always run tests after code changes" â†?PostToolUse hook
 
 **Hook events:** PreToolUse, PostToolUse, PreCompact, PostCompact, Stop, Notification, SessionStart
 
@@ -446,7 +446,7 @@ export function registerUpdateConfigSkill(): void {
   registerBundledSkill({
     name: 'update-config',
     description:
-      'Use this skill to configure the Claude Code harness via settings.json. Automated behaviors ("from now on when X", "each time X", "whenever X", "before/after X") require hooks configured in settings.json - the harness executes these, not Claude, so memory/preferences cannot fulfill them. Also use for: permissions ("allow X", "add permission", "move permission to"), env vars ("set X=Y"), hook troubleshooting, or any changes to settings.json/settings.local.json files. Examples: "allow npm commands", "add bq permission to global settings", "move permission to user settings", "set DEBUG=true", "when claude stops show X". For simple settings like theme/model, use Config tool.',
+      'Use this skill to configure the xccodex harness via settings.json. Automated behaviors ("from now on when X", "each time X", "whenever X", "before/after X") require hooks configured in settings.json - the harness executes these, not Claude, so memory/preferences cannot fulfill them. Also use for: permissions ("allow X", "add permission", "move permission to"), env vars ("set X=Y"), hook troubleshooting, or any changes to settings.json/settings.local.json files. Examples: "allow npm commands", "add bq permission to global settings", "move permission to user settings", "set DEBUG=true", "when claude stops show X". For simple settings like theme/model, use Config tool.',
     allowedTools: ['Read'],
     userInvocable: true,
     async getPromptForCommand(args) {

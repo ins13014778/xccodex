@@ -37,8 +37,9 @@ function loadTsModule(relativePath, injectedBindings = {}) {
   return module.exports
 }
 
-test('package.json exposes xccodex bin and files whitelist includes dist/xccodex.js', () => {
+test('package.json exposes xccodex package/bin and files whitelist includes dist/xccodex.js', () => {
   const pkg = JSON.parse(readSource('package.json'))
+  assert.equal(pkg.name, 'xccodex')
   assert.equal(pkg.bin.xccodex, 'dist/xccodex.js')
   assert.ok(pkg.files.includes('dist/xccodex.js'))
 })

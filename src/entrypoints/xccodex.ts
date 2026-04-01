@@ -20,13 +20,13 @@ const xccodePath = path.join(scriptDir, 'cli.js')
 function printHelp(): void {
   output.write(
     [
-      'Usage: xccodex [--reconfigure] [xccode-args...]',
+      'Usage: xccodex [--reconfigure] [xccodex-args...]',
       '',
-      'One-click launcher for xccode.',
+      'One-click launcher for xccodex.',
       '',
       'Behavior:',
-      '- If provider config already exists, launch xccode directly.',
-      '- If provider config is missing or incomplete, start an interactive setup wizard, save config, then launch xccode.',
+      '- If provider config already exists, launch xccodex directly.',
+      '- If provider config is missing or incomplete, start an interactive setup wizard, save config, then launch xccodex.',
       '',
       'Flags:',
       '- --reconfigure   Force the setup wizard even when config already exists.',
@@ -204,7 +204,7 @@ export async function main(): Promise<void> {
     throw new Error(`Failed to save xccodex configuration: ${result.error}`)
   }
 
-  output.write('Configuration saved. Launching xccode...\n')
+  output.write('Configuration saved. Launching xccodex...\n')
   await launchXccode(passthroughArgs)
 }
 

@@ -109,11 +109,11 @@ export function createChromeContext(
     clientTypeId: 'claude-code',
     onAuthenticationError: () => {
       logger.warn(
-        'Authentication error occurred. Please ensure you are logged into the Claude browser extension with the same claude.ai account as Claude Code.',
+        'Authentication error occurred. Please ensure you are logged into the Claude browser extension with the same claude.ai account as xccodex.',
       )
     },
     onToolCallDisconnected: () => {
-      return `Browser extension is not connected. Please ensure the Claude browser extension is installed and running (${EXTENSION_DOWNLOAD_URL}), and that you are logged into claude.ai with the same account as Claude Code. If this is your first time connecting to Chrome, you may need to restart Chrome for the installation to take effect. If you continue to experience issues, please report a bug: ${BUG_REPORT_URL}`
+      return `Browser extension is not connected. Please ensure the Claude browser extension is installed and running (${EXTENSION_DOWNLOAD_URL}), and that you are logged into claude.ai with the same account as xccodex. If this is your first time connecting to Chrome, you may need to restart Chrome for the installation to take effect. If you continue to experience issues, please report a bug: ${BUG_REPORT_URL}`
     },
     onExtensionPaired: (deviceId: string, name: string) => {
       saveGlobalConfig(config => {
@@ -149,12 +149,12 @@ export function createChromeContext(
       },
     }),
     ...(initialPermissionMode && { initialPermissionMode }),
-    // Wire inference for the browser_task tool â€” the chrome-mcp server runs
+    // Wire inference for the browser_task tool â€?the chrome-mcp server runs
     // a lightning-mode agent loop in Node and calls the extension's
     // lightning_turn tool once per iteration for execution.
     //
     // Ant-only: the extension's lightning_turn is build-time-gated via
-    // import.meta.env.ANT_ONLY_BUILD â€” the whole lightning/ module graph is
+    // import.meta.env.ANT_ONLY_BUILD â€?the whole lightning/ module graph is
     // tree-shaken from the public extension build (build:prod greps for a
     // marker to verify). Without this injection, the Node MCP server's
     // ListTools also filters browser_task + lightning_turn out, so external
@@ -164,7 +164,7 @@ export function createChromeContext(
     // @ant/claude-for-chrome-mcp@0.4.0 which isn't published yet. CI installs
     // 0.3.0. The callAnthropicMessages field is also 0.4.0-only, but spreading
     // an extra property into ClaudeForChromeContext is fine against either
-    // version â€” 0.3.0 sees an unknown field (allowed in spread), 0.4.0 sees a
+    // version â€?0.3.0 sees an unknown field (allowed in spread), 0.4.0 sees a
     // structurally-matching one. Once 0.4.0 is published, this can switch to
     // the package's exported types and the dep can be bumped.
     ...(process.env.USER_TYPE === 'ant' && {
@@ -183,7 +183,7 @@ export function createChromeContext(
         // sideQuery handles OAuth attribution fingerprint, proxy, model betas.
         // skipSystemPromptPrefix: the lightning prompt is complete on its own;
         // the CLI prefix would dilute the batching instructions.
-        // tools: [] is load-bearing â€” without it Sonnet emits
+        // tools: [] is load-bearing â€?without it Sonnet emits
         // <function_calls> XML before the text commands. Original
         // lightning-harness.js (apps repo) does the same.
         const response = await sideQuery({
@@ -233,7 +233,7 @@ export function createChromeContext(
             typeof value === 'string' &&
             SAFE_BRIDGE_STRING_KEYS.has(safeKey)
           ) {
-            // Only forward allowlisted string keys â€” fields like error_message
+            // Only forward allowlisted string keys â€?fields like error_message
             // could contain page content or user data
             safeMetadata[safeKey] =
               value as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS

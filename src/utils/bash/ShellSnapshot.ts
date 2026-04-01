@@ -114,7 +114,7 @@ const VCS_DIRECTORIES_TO_EXCLUDE = [
  * removed from the tool registry when embedded search tools are available),
  * so they're tuned to match those tools' semantics, not GNU find/grep.
  *
- * `find` â†” GlobTool:
+ * `find` â†?GlobTool:
  * - Inject `-regextype findutils-default`: bfs defaults to POSIX BRE for
  *   -regex, but GNU find defaults to emacs-flavor (which supports `\|`
  *   alternation). Without this, `find . -regex '.*\.\(js\|ts\)'` silently
@@ -128,7 +128,7 @@ const VCS_DIRECTORIES_TO_EXCLUDE = [
  * one alternative is a prefix of another (e.g., `\(ts\|tsx\)`) may miss
  * matches that GNU find catches. Workaround: put the longer alternative first.
  *
- * `grep` â†” GrepTool (file filtering) + GNU grep (regex syntax):
+ * `grep` â†?GrepTool (file filtering) + GNU grep (regex syntax):
  * - `-G` (basic regex / BRE): GNU grep defaults to BRE where `\|` is
  *   alternation. ugrep defaults to ERE where `|` is alternation and `\|` is a
  *   literal pipe. Without -G, `grep "foo\|bar"` silently returns zero results.
@@ -159,7 +159,7 @@ export function createFindGrepShellIntegration(): string | null {
     // User shell configs may define aliases like `alias find=gfind` or
     // `alias grep=ggrep` (common on macOS with Homebrew GNU tools). The
     // snapshot sources user aliases before these function definitions, and
-    // bash expands aliases before function lookup â€” so a renaming alias
+    // bash expands aliases before function lookup â€?so a renaming alias
     // would silently bypass the embedded bfs/ugrep dispatch. Clear them first
     // (same fix the rg integration uses).
     'unalias find 2>/dev/null || true',
@@ -263,7 +263,7 @@ function getUserSnapshotContent(configFile: string): string {
 }
 
 /**
- * Generates Claude Code specific snapshot content
+ * Generates xccodex specific snapshot content
  * This content is always included regardless of user configuration
  */
 async function getClaudeCodeSnapshotContent(): Promise<string> {
@@ -350,7 +350,7 @@ async function getSnapshotScript(
   const configFile = getConfigFile(shellPath)
   const isZsh = configFile.endsWith('.zshrc')
 
-  // Generate the user content and Claude Code content
+  // Generate the user content and xccodex content
   const userContent = configFileExists
     ? getUserSnapshotContent(configFile)
     : !isZsh
@@ -429,7 +429,7 @@ export const createAndSaveSnapshot = async (
 
       if (!configFileExists) {
         logForDebugging(
-          `Shell config file not found: ${configFile}, creating snapshot with Claude Code defaults only`,
+          `Shell config file not found: ${configFile}, creating snapshot with xccodex defaults only`,
         )
       }
 

@@ -1,5 +1,5 @@
 /**
- * Auto mode subcommand handlers â€” dump default/merged classifier rules and
+ * Auto mode subcommand handlers â€?dump default/merged classifier rules and
  * critique user-written rules. Dynamically imported when `claude auto-mode ...` runs.
  */
 
@@ -27,7 +27,7 @@ export function autoModeDefaultsHandler(): void {
 
 /**
  * Dump the effective auto mode config: user settings where provided, external
- * defaults otherwise. Per-section REPLACE semantics â€” matches how
+ * defaults otherwise. Per-section REPLACE semantics â€?matches how
  * buildYoloSystemPrompt resolves the external template (a non-empty user
  * section replaces that section's defaults entirely; an empty/absent section
  * falls through to defaults).
@@ -47,9 +47,9 @@ export function autoModeConfigHandler(): void {
 }
 
 const CRITIQUE_SYSTEM_PROMPT =
-  'You are an expert reviewer of auto mode classifier rules for Claude Code.\n' +
+  'You are an expert reviewer of auto mode classifier rules for xccodex.\n' +
   '\n' +
-  'Claude Code has an "auto mode" that uses an AI classifier to decide whether ' +
+  'xccodex has an "auto mode" that uses an AI classifier to decide whether ' +
   'tool calls should be auto-approved or require user confirmation. Users can ' +
   'write custom rules in three categories:\n' +
   '\n' +

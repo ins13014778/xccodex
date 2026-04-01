@@ -5,9 +5,7 @@
  * This module MUST NOT import execa, execFileNoThrow, or
  * execFileNoThrowPortable. keychainPrefetch.ts fires at the very top of
  * main.tsx (before the ~65ms of module evaluation it parallelizes), and Bun's
- * __esm wrapper evaluates the ENTIRE module when any symbol is accessed â€”
- * so a heavy transitive import here defeats the prefetch. The execa â†’
- * human-signals â†’ cross-spawn chain alone is ~58ms of synchronous init.
+ * __esm wrapper evaluates the ENTIRE module when any symbol is accessed â€? * so a heavy transitive import here defeats the prefetch. The execa â†? * human-signals â†?cross-spawn chain alone is ~58ms of synchronous init.
  *
  * The imports below (envUtils, oauth constants, crypto, os) are already
  * evaluated by startupProfiler.ts at main.tsx:5, so they add no module-init
@@ -22,7 +20,7 @@ import type { SecureStorageData } from './types.js'
 
 // Suffix distinguishing the OAuth credentials keychain entry from the legacy
 // API key entry (which uses no suffix). Both share the service name base.
-// DO NOT change this value â€” it's part of the keychain lookup key and would
+// DO NOT change this value â€?it's part of the keychain lookup key and would
 // orphan existing stored credentials.
 export const CREDENTIALS_SERVICE_SUFFIX = '-credentials'
 
@@ -37,7 +35,7 @@ export function getMacOsKeychainStorageServiceName(
   const dirHash = isDefaultDir
     ? ''
     : `-${createHash('sha256').update(configDir).digest('hex').substring(0, 8)}`
-  return `Claude Code${getOauthConfig().OAUTH_FILE_SUFFIX}${serviceSuffix}${dirHash}`
+  return `xccodex${getOauthConfig().OAUTH_FILE_SUFFIX}${serviceSuffix}${dirHash}`
 }
 
 export function getUsername(): string {
@@ -57,14 +55,14 @@ export function getUsername(): string {
 //
 // The sync read() path takes ~500ms per `security` spawn. With 50+ claude.ai
 // MCP connectors authenticating at startup, a short TTL expires mid-storm and
-// triggers repeat sync reads â€” observed as a 5.5s event-loop stall
+// triggers repeat sync reads â€?observed as a 5.5s event-loop stall
 // (go/ccshare/adamj-20260326-212235). 30s of cross-process staleness is fine:
 // OAuth tokens expire in hours, and the only cross-process writer is another
 // CC instance's /login or refresh.
 //
 // Lives here (not in macOsKeychainStorage.ts) so keychainPrefetch.ts can
 // prime it without pulling in execa. Wrapped in an object because ES module
-// `let` bindings aren't writable across module boundaries â€” both this file
+// `let` bindings aren't writable across module boundaries â€?both this file
 // and macOsKeychainStorage.ts need to mutate all three fields.
 export const KEYCHAIN_CACHE_TTL_MS = 30_000
 
@@ -92,7 +90,7 @@ export function clearKeychainCache(): void {
 
 /**
  * Prime the keychain cache from a prefetch result (keychainPrefetch.ts).
- * Only writes if the cache hasn't been touched yet â€” if sync read() or
+ * Only writes if the cache hasn't been touched yet â€?if sync read() or
  * update() already ran, their result is authoritative and we discard this.
  */
 export function primeKeychainCacheFromPrefetch(stdout: string | null): void {
@@ -103,7 +101,7 @@ export function primeKeychainCacheFromPrefetch(stdout: string | null): void {
       // eslint-disable-next-line custom-rules/no-direct-json-operations -- jsonParse() pulls slowOperations (lodash-es/cloneDeep) into the early-startup import chain; see file header
       data = JSON.parse(stdout)
     } catch {
-      // malformed prefetch result â€” let sync read() re-fetch
+      // malformed prefetch result â€?let sync read() re-fetch
       return
     }
   }

@@ -32,7 +32,7 @@ type StoredPastedContent = {
 }
 
 /**
- * Claude Code parses history for pasted content references to match back to
+ * xccodex parses history for pasted content references to match back to
  * pasted content. The references look like:
  *   Text: [Pasted text #1 +10 lines]
  *   Image: [Image #2]
@@ -76,7 +76,7 @@ export function parseReferences(
 
 /**
  * Replace [Pasted text #N] placeholders in input with their actual content.
- * Image refs are left alone â€” they become content blocks, not inlined text.
+ * Image refs are left alone â€?they become content blocks, not inlined text.
  */
 export function expandPastedTextRefs(
   input: string,
@@ -157,7 +157,7 @@ export type TimestampedHistoryEntry = {
 /**
  * Current-project history for the ctrl+r picker: deduped by display text,
  * newest first, with timestamps. Paste contents are resolved lazily via
- * `resolve()` â€” the picker only reads display+timestamp for the list.
+ * `resolve()` â€?the picker only reads display+timestamp for the list.
  */
 export async function* getTimestampedHistory(): AsyncGenerator<TimestampedHistoryEntry> {
   const currentProject = getProjectRoot()
@@ -184,8 +184,7 @@ export async function* getTimestampedHistory(): AsyncGenerator<TimestampedHistor
  *
  * Entries from the current session are yielded before entries from other sessions,
  * so concurrent sessions don't interleave their up-arrow history. Within each group,
- * order is newest-first. Scans the same MAX_HISTORY_ITEMS window as before â€”
- * entries are reordered within that window, not beyond it.
+ * order is newest-first. Scans the same MAX_HISTORY_ITEMS window as before â€? * entries are reordered within that window, not beyond it.
  */
 export async function* getHistory(): AsyncGenerator<HistoryEntry> {
   const currentProject = getProjectRoot()
@@ -205,7 +204,7 @@ export async function* getHistory(): AsyncGenerator<HistoryEntry> {
       otherSessionEntries.push(entry)
     }
 
-    // Same MAX_HISTORY_ITEMS window as before â€” just reordered within it.
+    // Same MAX_HISTORY_ITEMS window as before â€?just reordered within it.
     if (yielded + otherSessionEntries.length >= MAX_HISTORY_ITEMS) break
   }
 
@@ -409,7 +408,7 @@ async function addToPromptHistory(
 }
 
 export function addToHistory(command: HistoryEntry | string): void {
-  // Skip history when running in a tmux session spawned by Claude Code's Tungsten tool.
+  // Skip history when running in a tmux session spawned by xccodex's Tungsten tool.
   // This prevents verification/test sessions from polluting the user's real command history.
   if (isEnvTruthy(process.env.CLAUDE_CODE_SKIP_PROMPT_HISTORY)) {
     return
@@ -442,7 +441,7 @@ export function clearPendingHistoryEntries(): void {
 /**
  * Undo the most recent addToHistory call. Used by auto-restore-on-interrupt:
  * when Esc rewinds the conversation before any response arrives, the submit is
- * semantically undone â€” the history entry should be too, otherwise Up-arrow
+ * semantically undone â€?the history entry should be too, otherwise Up-arrow
  * shows the restored text twice (once from the input box, once from disk).
  *
  * Fast path pops from the pending buffer. If the async flush already won the

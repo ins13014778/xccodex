@@ -120,45 +120,45 @@ export async function update() {
     writeToStdout('\n')
 
     if (packageManager === 'homebrew') {
-      writeToStdout('xccode is managed by Homebrew.\n')
+      writeToStdout('xccodex is managed by Homebrew.\n')
       const latest = await getLatestVersion(channel)
       if (latest && !gte(MACRO.VERSION, latest)) {
         writeToStdout(`Update available: ${MACRO.VERSION} → ${latest}\n`)
         writeToStdout('\n')
         writeToStdout('To update, run:\n')
-        writeToStdout(chalk.bold('  brew upgrade xccode') + '\n')
+        writeToStdout(chalk.bold('  brew upgrade xccodex') + '\n')
       } else {
-        writeToStdout('xccode is up to date!\n')
+        writeToStdout('xccodex is up to date!\n')
       }
     } else if (packageManager === 'winget') {
-      writeToStdout('xccode is managed by winget.\n')
+      writeToStdout('xccodex is managed by winget.\n')
       const latest = await getLatestVersion(channel)
       if (latest && !gte(MACRO.VERSION, latest)) {
         writeToStdout(`Update available: ${MACRO.VERSION} → ${latest}\n`)
         writeToStdout('\n')
         writeToStdout('To update, run:\n')
         writeToStdout(
-          chalk.bold('  winget upgrade xccode.xccode') + '\n',
+          chalk.bold('  winget upgrade xccodex.xccodex') + '\n',
         )
       } else {
-        writeToStdout('xccode is up to date!\n')
+        writeToStdout('xccodex is up to date!\n')
       }
     } else if (packageManager === 'apk') {
-      writeToStdout('xccode is managed by apk.\n')
+      writeToStdout('xccodex is managed by apk.\n')
       const latest = await getLatestVersion(channel)
       if (latest && !gte(MACRO.VERSION, latest)) {
         writeToStdout(`Update available: ${MACRO.VERSION} → ${latest}\n`)
         writeToStdout('\n')
         writeToStdout('To update, run:\n')
-        writeToStdout(chalk.bold('  apk upgrade xccode') + '\n')
+        writeToStdout(chalk.bold('  apk upgrade xccodex') + '\n')
       } else {
-        writeToStdout('xccode is up to date!\n')
+        writeToStdout('xccodex is up to date!\n')
       }
     } else {
       // pacman, deb, and rpm don't get specific commands because they each have
       // multiple frontends (pacman: yay/paru/makepkg, deb: apt/apt-get/aptitude/nala,
       // rpm: dnf/yum/zypper)
-      writeToStdout('xccode is managed by a package manager.\n')
+      writeToStdout('xccodex is managed by a package manager.\n')
       writeToStdout('Please use your package manager to update.\n')
     }
 
@@ -225,7 +225,7 @@ export async function update() {
           : ''
         writeToStdout(
           chalk.yellow(
-            `Another xccode process${pidInfo} is currently running. Please try again in a moment.`,
+            `Another xccodex process${pidInfo} is currently running. Please try again in a moment.`,
           ) + '\n',
         )
         await gracefulShutdown(0)
@@ -238,7 +238,7 @@ export async function update() {
 
       if (result.latestVersion === MACRO.VERSION) {
         writeToStdout(
-          chalk.green(`xccode is up to date (${MACRO.VERSION})`) + '\n',
+          chalk.green(`xccodex is up to date (${MACRO.VERSION})`) + '\n',
         )
       } else {
         writeToStdout(
@@ -252,7 +252,7 @@ export async function update() {
     } catch (error) {
       process.stderr.write('Error: Failed to install native update\n')
       process.stderr.write(String(error) + '\n')
-      process.stderr.write('Try running "xccode doctor" for diagnostics\n')
+      process.stderr.write('Try running "xccodex doctor" for diagnostics\n')
       await gracefulShutdown(1)
     }
   }
@@ -295,8 +295,8 @@ export async function update() {
     const packageName =
       MACRO.PACKAGE_URL ||
       (process.env.USER_TYPE === 'ant'
-        ? 'xccode'
-        : 'xccode')
+        ? 'xccodex'
+        : 'xccodex')
     process.stderr.write(
       `  • Manually check: npm view ${packageName} version\n`,
     )
@@ -308,7 +308,7 @@ export async function update() {
   // Check if versions match exactly, including any build metadata (like SHA)
   if (latestVersion === MACRO.VERSION) {
     writeToStdout(
-      chalk.green(`xccode is up to date (${MACRO.VERSION})`) + '\n',
+      chalk.green(`xccodex is up to date (${MACRO.VERSION})`) + '\n',
     )
     await gracefulShutdown(0)
   }
@@ -391,7 +391,7 @@ export async function update() {
       } else {
         process.stderr.write('Try running with sudo or fix npm permissions\n')
         process.stderr.write(
-          'Or consider using native installation with: xccode install\n',
+          'Or consider using native installation with: xccodex install\n',
         )
       }
       await gracefulShutdown(1)
@@ -405,7 +405,7 @@ export async function update() {
         )
       } else {
         process.stderr.write(
-          'Or consider using native installation with: xccode install\n',
+          'Or consider using native installation with: xccodex install\n',
         )
       }
       await gracefulShutdown(1)

@@ -44,7 +44,7 @@ import { hasSyncSecurityConcerns, isReadOnlyCommand, resolveToCanonical } from '
 import { POWERSHELL_TOOL_NAME } from './toolName.js';
 import { renderToolResultMessage, renderToolUseErrorMessage, renderToolUseMessage, renderToolUseProgressMessage, renderToolUseQueuedMessage } from './UI.js';
 
-// Never use os.EOL for terminal output â€” \r\n on Windows breaks Ink rendering
+// Never use os.EOL for terminal output â€?\r\n on Windows breaks Ink rendering
 const EOL = '\n';
 
 /**
@@ -187,9 +187,9 @@ function isAutobackgroundingAllowed(command: string): boolean {
  * pacing is fine) or float seconds (legit rate limiting).
  */
 export function detectBlockedSleepPattern(command: string): string | null {
-  // First statement only â€” split on PS statement separators: `;`, `|`,
+  // First statement only â€?split on PS statement separators: `;`, `|`,
   // `&`/`&&`/`||` (pwsh 7+), and newline (PS's primary separator). This is
-  // intentionally shallow â€” sleep inside script blocks, subshells, or later
+  // intentionally shallow â€?sleep inside script blocks, subshells, or later
   // pipeline stages is fine. Matches BashTool's splitCommandWithOperators
   // intent (src/utils/bash/commands.ts) without a full PS parser.
   const first = command.trim().split(/[;|&\r\n]/)[0]?.trim() ?? '';
@@ -207,7 +207,7 @@ export function detectBlockedSleepPattern(command: string): string | null {
 /**
  * On Windows native, sandbox is unavailable (bwrap/sandbox-exec are
  * POSIX-only). If enterprise policy has sandbox.enabled AND forbids
- * unsandboxed commands, PowerShell cannot comply â€” refuse execution
+ * unsandboxed commands, PowerShell cannot comply â€?refuse execution
  * rather than silently bypass the policy. On Linux/macOS/WSL2, pwsh
  * runs as a native binary under the sandbox same as bash, so this
  * gate does not apply.
@@ -301,7 +301,7 @@ export const PowerShellTool = buildTool({
     // Check sync security heuristics before declaring read-only.
     // The full AST parse is async and unavailable here, so we use
     // regex-based detection of subexpressions, splatting, member
-    // invocations, and assignments â€” matching BashTool's pattern of
+    // invocations, and assignments â€?matching BashTool's pattern of
     // checking security concerns before cmdlet allowlist evaluation.
     if (hasSyncSecurityConcerns(input.command)) {
       return false;
@@ -309,7 +309,7 @@ export const PowerShellTool = buildTool({
     // NOTE: This calls isReadOnlyCommand without the parsed AST. Without the
     // AST, isReadOnlyCommand cannot split pipelines/statements and will return
     // false for anything but the simplest single-token commands. This is a
-    // known limitation of the sync Tool.isReadOnly() interface â€” the real
+    // known limitation of the sync Tool.isReadOnly() interface â€?the real
     // read-only auto-allow happens async in powershellToolHasPermission (step
     // 4.5) where the parsed AST is available.
     return isReadOnlyCommand(input.command);
@@ -363,7 +363,7 @@ export const PowerShellTool = buildTool({
       if (sleepPattern !== null) {
         return {
           result: false,
-          message: `Blocked: ${sleepPattern}. Run blocking commands in the background with run_in_background: true â€” you'll get a completion notification when done. For streaming events (watching logs, polling APIs), use the Monitor tool. If you genuinely need a delay (rate limiting, deliberate pacing), keep it under 2 seconds.`,
+          message: `Blocked: ${sleepPattern}. Run blocking commands in the background with run_in_background: true â€?you'll get a completion notification when done. For streaming events (watching logs, polling APIs), use the Monitor tool. If you genuinely need a delay (rate limiting, deliberate pacing), keep it under 2 seconds.`,
           errorCode: 10
         };
       }
@@ -420,7 +420,7 @@ export const PowerShellTool = buildTool({
     if (backgroundTaskId) {
       const outputPath = getTaskOutputPath(backgroundTaskId);
       if (assistantAutoBackgrounded) {
-        backgroundInfo = `Command exceeded the assistant-mode blocking budget (${ASSISTANT_BLOCKING_BUDGET_MS / 1000}s) and was moved to the background with ID: ${backgroundTaskId}. It is still running â€” you will be notified when it completes. Output is being written to: ${outputPath}. In assistant mode, delegate long-running work to a subagent or use run_in_background to keep this conversation responsive.`;
+        backgroundInfo = `Command exceeded the assistant-mode blocking budget (${ASSISTANT_BLOCKING_BUDGET_MS / 1000}s) and was moved to the background with ID: ${backgroundTaskId}. It is still running â€?you will be notified when it completes. Output is being written to: ${outputPath}. In assistant mode, delegate long-running work to a subagent or use run_in_background to keep this conversation responsive.`;
       } else if (backgroundedByUser) {
         backgroundInfo = `Command was manually backgrounded by user with ID: ${backgroundTaskId}. Output is being written to: ${outputPath}`;
       } else {
@@ -497,7 +497,7 @@ export const PowerShellTool = buildTool({
       // surface stderr gracefully instead of throwing ShellError. But
       // gitOperationTracking.ts:48 treats code 0 as success and would
       // regex-match the command, mis-counting a command that never ran.
-      // BashTool is safe â€” its pre-flight goes through createFailedCommand
+      // BashTool is safe â€?its pre-flight goes through createFailedCommand
       // (code: 1) so tracking early-returns. Skip tracking on this sentinel.
       const isPreFlightSentinel = result.code === 0 && !result.stdout && result.stderr && !result.backgroundTaskId;
       if (!isPreFlightSentinel) {
@@ -505,8 +505,7 @@ export const PowerShellTool = buildTool({
       }
 
       // Distinguish user-driven interrupt (new message submitted) from other
-      // interrupted states. Only user-interrupt should suppress ShellError â€”
-      // timeout-kill or process-kill with isError should still throw.
+      // interrupted states. Only user-interrupt should suppress ShellError â€?      // timeout-kill or process-kill with isError should still throw.
       // Matches BashTool's isInterrupt.
       const isInterrupt = result.interrupted && abortController.signal.reason === 'interrupt';
 
@@ -514,7 +513,7 @@ export const PowerShellTool = buildTool({
       // isolation. Matches BashTool's !preventCwdChanges guard.
       // Runs before the backgroundTaskId early-return: a command may change
       // CWD before being backgrounded (e.g. `Set-Location C:\temp;
-      // Start-Sleep 60`), and BashTool has no such early return â€” its
+      // Start-Sleep 60`), and BashTool has no such early return â€?its
       // backgrounded results flow through resetCwdIfOutsideProject at :945.
       let stderrForShellReset = '';
       if (isMainThread) {
@@ -557,14 +556,14 @@ export const PowerShellTool = buildTool({
       // getErrorParts() in toolErrors.ts already prepends 'Exit code N'
       // from error.code when building the ShellError message. Do not
       // duplicate it into stdout here (BashTool's append at :939 is dead
-      // code â€” it throws before stdoutAccumulator.toString() is read).
+      // code â€?it throws before stdoutAccumulator.toString() is read).
 
       let stdout = stripEmptyLines(stdoutAccumulator.toString());
 
-      // Claude Code hints protocol: CLIs/SDKs gated on CLAUDECODE=1 emit a
+      // xccodex hints protocol: CLIs/SDKs gated on CLAUDECODE=1 emit a
       // `<claude-code-hint />` tag to stderr (merged into stdout here). Scan,
       // record for useClaudeCodeHintRecommendation to surface, then strip
-      // so the model never sees the tag â€” a zero-token side channel.
+      // so the model never sees the tag â€?a zero-token side channel.
       // Stripping runs unconditionally (subagent output must stay clean too);
       // only the dialog recording is main-thread-only.
       const extracted = extractClaudeCodeHints(stdout, input.command);
@@ -592,7 +591,7 @@ export const PowerShellTool = buildTool({
       // Placed AFTER the preSpawnError/ShellError throws (matches BashTool's
       // ordering, where persistence is post-try/finally): a failing command
       // that also produced >maxOutputLength bytes would otherwise do 3-4 disk
-      // syscalls, store to tool-results/, then throw â€” orphaning the file.
+      // syscalls, store to tool-results/, then throw â€?orphaning the file.
       const MAX_PERSISTED_SIZE = 64 * 1024 * 1024;
       let persistedOutputPath: string | undefined;
       let persistedOutputSize: number | undefined;
@@ -612,11 +611,11 @@ export const PowerShellTool = buildTool({
           }
           persistedOutputPath = dest;
         } catch {
-          // File may already be gone â€” stdout preview is sufficient
+          // File may already be gone â€?stdout preview is sufficient
         }
       }
 
-      // Cap image dimensions + size if present (CC-304 â€” see
+      // Cap image dimensions + size if present (CC-304 â€?see
       // resizeShellImageOutput). Scope the decoded buffer so it can be
       // reclaimed before we build the output object.
       let isImage = isImageOutput(stdout);
@@ -628,7 +627,7 @@ export const PowerShellTool = buildTool({
         } else {
           // Parse failed (e.g. multi-line stdout after the data URL). Keep
           // isImage in sync with what we actually send so the UI label stays
-          // accurate â€” mapToolResultToToolResultBlockParam's defensive
+          // accurate â€?mapToolResultToToolResultBlockParam's defensive
           // fallthrough will send text, not an image block.
           isImage = false;
         }
@@ -717,7 +716,7 @@ async function* runPowerShellCommand({
   const powershellPath = await getCachedPowerShellPath();
   if (!powershellPath) {
     // Pre-flight failure: pwsh not installed. Return code 0 so call() surfaces
-    // this as a graceful stderr message rather than throwing ShellError â€” the
+    // this as a graceful stderr message rather than throwing ShellError â€?the
     // command never ran, so there is no meaningful non-zero exit to report.
     return {
       stdout: '',
@@ -737,11 +736,11 @@ async function* runPowerShellCommand({
         lastTotalBytes = isIncomplete ? totalBytes : 0;
       },
       preventCwdChanges,
-      // Sandbox works on Linux/macOS/WSL2 â€” pwsh there is a native binary and
+      // Sandbox works on Linux/macOS/WSL2 â€?pwsh there is a native binary and
       // SandboxManager.wrapWithSandbox wraps it same as bash (Shell.ts uses
       // /bin/sh for the outer spawn to parse the POSIX-quoted bwrap/sandbox-exec
       // string). On Windows native, sandbox is unsupported; shouldUseSandbox()
-      // returns false via isSandboxingEnabled() â†’ isSupportedPlatform() â†’ false.
+      // returns false via isSandboxingEnabled() â†?isSupportedPlatform() â†?false.
       // The explicit platform check is redundant-but-obvious.
       shouldUseSandbox: getPlatform() === 'windows' ? false : shouldUseSandbox({
         command,
@@ -798,7 +797,7 @@ async function* runPowerShellCommand({
       return;
     }
 
-    // No foreground task registered â€” spawn a new background task
+    // No foreground task registered â€?spawn a new background task
     // Note: spawn is essentially synchronous despite being async
     void spawnBackgroundTask().then(shellId => {
       backgroundShellId = shellId;
@@ -829,7 +828,7 @@ async function* runPowerShellCommand({
 
   // In assistant mode, the main agent should stay responsive. Auto-background
   // blocking commands after ASSISTANT_BLOCKING_BUDGET_MS so the agent can keep
-  // coordinating instead of waiting. The command keeps running â€” no state loss.
+  // coordinating instead of waiting. The command keeps running â€?no state loss.
   if (feature('KAIROS') && getKairosActive() && isMainThread && !isBackgroundTasksDisabled && run_in_background !== true) {
     setTimeout(() => {
       if (shellCommand.status === 'running' && backgroundShellId === undefined) {
@@ -865,7 +864,7 @@ async function* runPowerShellCommand({
   let foregroundTaskId: string | undefined = undefined;
 
   // Progress loop: wrap in try/finally so stopPolling is called on every exit
-  // path â€” normal completion, timeout/interrupt backgrounding, and Ctrl+B
+  // path â€?normal completion, timeout/interrupt backgrounding, and Ctrl+B
   // (matches BashTool pattern; see PR #18887 review thread at :560)
   try {
     while (true) {
@@ -899,7 +898,7 @@ async function* runPowerShellCommand({
             fixedResult.outputFileSize = taskOutput.outputFileSize;
             fixedResult.outputTaskId = taskOutput.taskId;
           }
-          // Command completed â€” cleanup stream listeners here. The finally
+          // Command completed â€?cleanup stream listeners here. The finally
           // block's guard (!backgroundShellId && status !== 'backgrounded')
           // correctly skips cleanup for *running* backgrounded tasks, but
           // in this race the process is done. Matches BashTool.tsx:1399.
@@ -988,7 +987,7 @@ async function* runPowerShellCommand({
   } finally {
     TaskOutput.stopPolling(shellCommand.taskOutput.taskId);
     // Ensure cleanup runs on every exit path (success, rejection, abort).
-    // Skip when backgrounded â€” LocalShellTask owns cleanup for those.
+    // Skip when backgrounded â€?LocalShellTask owns cleanup for those.
     // Matches main #21105.
     if (!backgroundShellId && shellCommand.status !== 'backgrounded') {
       if (foregroundTaskId) {

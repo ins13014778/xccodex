@@ -5,7 +5,7 @@ import { BASH_TOOL_NAME } from '../BashTool/toolName.js'
 export const FILE_READ_TOOL_NAME = 'Read'
 
 export const FILE_UNCHANGED_STUB =
-  'File unchanged since last read. The content from the earlier Read tool_result in this conversation is still current â€” refer to that instead of re-reading.'
+  'File unchanged since last read. The content from the earlier Read tool_result in this conversation is still current â€?refer to that instead of re-reading.'
 
 export const MAX_LINES_TO_READ = 2000
 
@@ -37,7 +37,7 @@ Usage:
 - By default, it reads up to ${MAX_LINES_TO_READ} lines starting from the beginning of the file${maxSizeInstruction}
 ${offsetInstruction}
 ${lineFormat}
-- This tool allows Claude Code to read images (eg PNG, JPG, etc). When reading an image file the contents are presented visually as Claude Code is a multimodal LLM.${
+- This tool allows xccodex to read images (eg PNG, JPG, etc). When reading an image file the contents are presented visually as xccodex is a multimodal LLM.${
     isPDFSupported()
       ? '\n- This tool can read PDF files (.pdf). For large PDFs (more than 10 pages), you MUST provide the pages parameter to read specific page ranges (e.g., pages: "1-5"). Reading a large PDF without the pages parameter will fail. Maximum 20 pages per request.'
       : ''

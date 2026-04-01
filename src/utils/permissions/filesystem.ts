@@ -221,7 +221,7 @@ export function isClaudeSettingsPath(filePath: string): boolean {
   )
 }
 
-// Always ask when Claude Code tries to edit its own config files
+// Always ask when xccodex tries to edit its own config files
 function isClaudeConfigFilePath(filePath: string): boolean {
   if (isClaudeSettingsPath(filePath)) {
     return true
@@ -319,7 +319,7 @@ export function getClaudeTempDirName(): string {
  * Uses TMPDIR env var if set, otherwise:
  * - On Unix: /tmp/claude-{uid}/ (resolved to /private/tmp/claude-{uid}/ on macOS)
  * - On Windows: {tmpdir}/claude/ (e.g., C:\Users\{user}\AppData\Local\Temp\claude\)
- * This is a per-user temporary directory used by Claude Code for all temp files.
+ * This is a per-user temporary directory used by xccodex for all temp files.
  *
  * NOTE: We resolve symlinks to ensure this path matches the resolved paths used
  * in permission checks. On macOS, /tmp is a symlink to /private/tmp, so without
@@ -352,7 +352,7 @@ export const getClaudeTempDir = memoize(function getClaudeTempDir(): string {
  * SECURITY: The per-process random nonce is the load-bearing defense here.
  * Every other path component (uid, VERSION, skill name, file keys) is public
  * knowledge, so without it a local attacker can pre-create the tree on a
- * shared /tmp â€” sticky bit prevents deletion, not creation â€” and either
+ * shared /tmp â€?sticky bit prevents deletion, not creation â€?and either
  * symlink an intermediate directory (O_NOFOLLOW only checks the final
  * component) or own a parent dir and swap file contents post-write for prompt
  * injection via the read allowlist. diskOutput.ts gets the same property from
@@ -608,7 +608,7 @@ function hasSuspiciousWindowsPathPattern(path: string): boolean {
  * This function performs comprehensive safety checks including:
  * - Suspicious Windows path patterns (NTFS streams, 8.3 names, long path prefixes, etc.)
  * - Claude config files (.claude/settings.json, .claude/commands/, .claude/agents/)
- * - MCP CLI state files (managed internally by Claude Code)
+ * - MCP CLI state files (managed internally by xccodex)
  * - Dangerous files (.bashrc, .gitconfig, .git/, .vscode/, .idea/, etc.)
  *
  * IMPORTANT: This function checks BOTH the original path AND resolved symlink paths
@@ -675,7 +675,7 @@ export function allWorkingDirectories(
 
 // Working directories are session-stable; memoize their resolved forms to
 // avoid repeated existsSync/lstatSync/realpathSync syscalls on every
-// permission check. Keyed by path string â€” getPathsForPermissionCheck is
+// permission check. Keyed by path string â€?getPathsForPermissionCheck is
 // deterministic for existing directories within a session.
 // Exported for test/preload.ts cache clearing (shard-isolation).
 export const getResolvedWorkingDirPaths = memoize(getPathsForPermissionCheck)
@@ -1041,8 +1041,7 @@ export function checkReadPermissionForTool(
   const path = tool.getPath(input)
 
   // Get paths to check (includes both original and resolved symlinks).
-  // Computed once here and threaded through checkWritePermissionForTool â†’
-  // checkPathSafetyForAutoEdit â†’ pathInAllowedWorkingPath to avoid redundant
+  // Computed once here and threaded through checkWritePermissionForTool â†?  // checkPathSafetyForAutoEdit â†?pathInAllowedWorkingPath to avoid redundant
   // existsSync/lstatSync/realpathSync syscalls on the same path (previously
   // 6Ã— = 30 syscalls per Read permission check).
   const pathsToCheck = getPathsForPermissionCheck(path)
@@ -1198,7 +1197,7 @@ export function checkReadPermissionForTool(
  *
  * @param precomputedPathsToCheck - Optional cached result of
  *   `getPathsForPermissionCheck(tool.getPath(input))`. Callers MUST derive this
- *   from the same `tool` and `input` in the same synchronous frame â€” `path` is
+ *   from the same `tool` and `input` in the same synchronous frame â€?`path` is
  *   re-derived internally for error messages and internal-path checks, so a
  *   stale value would silently check deny rules for the wrong path.
  */
@@ -1307,7 +1306,7 @@ export function checkWritePermissionForTool<Input extends AnyObject>(
     // SDK suggestion: if under .claude/skills/{name}/, emit the narrowed
     // session-scoped addRules that step 1.6 will honor on the next call.
     // Everything else (.claude/settings.json, .git/, .vscode/, .idea/) falls
-    // back to generateSuggestions â€” its setMode suggestion doesn't bypass
+    // back to generateSuggestions â€?its setMode suggestion doesn't bypass
     // this check, but preserving it avoids a surprising empty array.
     const skillScope = getClaudeSkillScope(path)
     const safetySuggestions: PermissionUpdate[] = skillScope
@@ -1440,7 +1439,7 @@ export function generateSuggestions(
   // mode the classifier already auto-approves edits; in bypassPermissions
   // everything is allowed; in acceptEdits it's a no-op. Suggesting it
   // anyway and having the SDK host apply it on "Always allow" silently
-  // downgrades auto â†’ acceptEdits, which then prompts for MCP/Bash.
+  // downgrades auto â†?acceptEdits, which then prompts for MCP/Bash.
   const shouldSuggestAcceptEdits =
     toolPermissionContext.mode === 'default' ||
     toolPermissionContext.mode === 'plan'
@@ -1510,12 +1509,12 @@ export function checkEditableInternalPath(
 
   // Template job's own directory. Env key hardcoded (vs importing JOB_ENV_KEY
   // from jobs/state) so tree-shaking eliminates the string from external
-  // builds â€” spawn.test.ts asserts the string matches. Hijack guard: the env
+  // builds â€?spawn.test.ts asserts the string matches. Hijack guard: the env
   // var value must itself resolve under ~/.claude/jobs/. Symlink guard: every
   // resolved form of the target (lexical + symlink chain) must fall under some
   // resolved form of the job dir, so a symlink inside the job dir pointing at
   // e.g. ~/.ssh/authorized_keys does not get a free write. Resolving both
-  // sides handles the macOS /tmp â†’ /private/tmp case where the config dir
+  // sides handles the macOS /tmp â†?/private/tmp case where the config dir
   // lives under a symlinked root.
   if (feature('TEMPLATES')) {
     const jobDir = process.env.CLAUDE_JOB_DIR
@@ -1566,8 +1565,8 @@ export function checkEditableInternalPath(
   // This pre-safety-check carve-out exists because the default path is under
   // ~/.claude/, which is in DANGEROUS_DIRECTORIES. The CLAUDE_COWORK_MEMORY_PATH_OVERRIDE
   // override is an arbitrary caller-designated directory with no such conflict,
-  // so it gets NO special permission treatment here â€” writes go through normal
-  // permission flow (step 5 â†’ ask). SDK callers who want silent memory should
+  // so it gets NO special permission treatment here â€?writes go through normal
+  // permission flow (step 5 â†?ask). SDK callers who want silent memory should
   // pass an allow rule for the override path.
   if (!hasAutoMemPathOverride() && isAutoMemPath(normalizedPath)) {
     return {
@@ -1580,12 +1579,12 @@ export function checkEditableInternalPath(
     }
   }
 
-  // .claude/launch.json â€” desktop preview config (dev server command + port).
+  // .claude/launch.json â€?desktop preview config (dev server command + port).
   // The desktop's preview_start MCP tool instructs Claude to create/update
   // this file as part of the preview workflow. Without this carve-out the
   // .claude/ DANGEROUS_DIRECTORIES check prompts for it, which in SDK mode
-  // cascades: user clicks "Always allow" â†’ setMode:acceptEdits suggestion
-  // applied â†’ silent downgrade from auto mode. Matches the project-level
+  // cascades: user clicks "Always allow" â†?setMode:acceptEdits suggestion
+  // applied â†?silent downgrade from auto mode. Matches the project-level
   // .claude/ only (not ~/.claude/) since launch.json is per-project.
   if (
     normalizeCaseForComparison(normalizedPath) ===
@@ -1757,7 +1756,7 @@ export function checkReadableInternalPath(
   }
 
   // Bundled skill reference files extracted on first invocation.
-  // SECURITY: See getBundledSkillsRoot() â€” the per-process nonce in the path
+  // SECURITY: See getBundledSkillsRoot() â€?the per-process nonce in the path
   // is the load-bearing defense; uid/VERSION alone are public knowledge and
   // squattable. We always write-before-read on invocation, so content under
   // this subtree is harness-controlled.

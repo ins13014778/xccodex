@@ -619,7 +619,7 @@ function validateCommandPaths(
   if (validator && !validator(args)) {
     return {
       behavior: 'ask',
-      message: `${command} with flags requires manual approval to ensure path safety. For security, Claude Code cannot automatically validate ${command} commands that use flags, as some flags like --target-directory=PATH can bypass path validation.`,
+      message: `${command} with flags requires manual approval to ensure path safety. For security, xccodex cannot automatically validate ${command} commands that use flags, as some flags like --target-directory=PATH can bypass path validation.`,
       decisionReason: {
         type: 'other',
         reason: `${command} command with flags requires manual approval`,
@@ -645,7 +645,7 @@ function validateCommandPaths(
   if (compoundCommandHasCd && operationType !== 'read') {
     return {
       behavior: 'ask',
-      message: `Commands that change directories and perform write operations require explicit approval to ensure paths are evaluated correctly. For security, Claude Code cannot automatically determine the final working directory when 'cd' is used in compound commands.`,
+      message: `Commands that change directories and perform write operations require explicit approval to ensure paths are evaluated correctly. For security, xccodex cannot automatically determine the final working directory when 'cd' is used in compound commands.`,
       decisionReason: {
         type: 'other',
         reason:
@@ -674,7 +674,7 @@ function validateCommandPaths(
         decisionReason?.type === 'other' ||
         decisionReason?.type === 'safetyCheck'
           ? decisionReason.reason
-          : `${command} in '${resolvedPath}' was blocked. For security, Claude Code may only ${ACTION_VERBS[command]} the allowed working directories for this session: ${dirListStr}.`
+          : `${command} in '${resolvedPath}' was blocked. For security, xccodex may only ${ACTION_VERBS[command]} the allowed working directories for this session: ${dirListStr}.`
 
       if (decisionReason?.type === 'rule') {
         return {
@@ -935,7 +935,7 @@ function validateOutputRedirections(
   if (compoundCommandHasCd && redirections.length > 0) {
     return {
       behavior: 'ask',
-      message: `Commands that change directories and write via output redirection require explicit approval to ensure paths are evaluated correctly. For security, Claude Code cannot automatically determine the final working directory when 'cd' is used in compound commands.`,
+      message: `Commands that change directories and write via output redirection require explicit approval to ensure paths are evaluated correctly. For security, xccodex cannot automatically determine the final working directory when 'cd' is used in compound commands.`,
       decisionReason: {
         type: 'other',
         reason:
@@ -969,7 +969,7 @@ function validateOutputRedirections(
           ? decisionReason.reason
           : decisionReason?.type === 'rule'
             ? `Output redirection to '${resolvedPath}' was blocked by a deny rule.`
-            : `Output redirection to '${resolvedPath}' was blocked. For security, Claude Code may only write to files in the allowed working directories for this session: ${dirListStr}.`
+            : `Output redirection to '${resolvedPath}' was blocked. For security, xccodex may only write to files in the allowed working directories for this session: ${dirListStr}.`
 
       // If denied by a deny rule, return 'deny' behavior
       if (decisionReason?.type === 'rule') {
@@ -1023,7 +1023,7 @@ export function checkPathConstraints(
   //   echo secret > >(tee .git/config)
   // The tee command writes to .git/config but it's not detected as a redirect.
   // Require explicit approval for any command containing process substitution.
-  // Skip on AST path — process_substitution is in DANGEROUS_TYPES and
+  // Skip on AST path �?process_substitution is in DANGEROUS_TYPES and
   // already returned too-complex before reaching here.
   if (!astCommands && />>\s*>\s*\(|>\s*>\s*\(|<\s*\(/.test(input.command)) {
     return {
@@ -1140,11 +1140,11 @@ function astRedirectsToOutputRedirections(redirects: Redirect[]): {
       case '<<':
       case '<&':
       case '<<<':
-        // input redirects — skip
+        // input redirects �?skip
         break
     }
   }
-  // AST targets are fully resolved (no shell expansion) — checkSemantics
+  // AST targets are fully resolved (no shell expansion) �?checkSemantics
   // already validated them. No dangerous redirections are possible.
   return { redirections, hasDangerousRedirection: false }
 }
@@ -1154,7 +1154,7 @@ function astRedirectsToOutputRedirections(redirects: Redirect[]): {
 //
 // This is the CANONICAL stripWrappersFromArgv. bashPermissions.ts still
 // exports an older narrower copy (timeout/nice-n-N only) that is DEAD CODE
-// — no prod consumer — but CANNOT be removed: bashPermissions.ts is right
+// �?no prod consumer �?but CANNOT be removed: bashPermissions.ts is right
 // at Bun's feature() DCE complexity threshold, and deleting ~80 lines from
 // that module silently breaks feature('BASH_CLASSIFIER') evaluation (drops
 // every pendingClassifierCheck spread). Verified in PR #21503 round 3:
@@ -1167,13 +1167,13 @@ function astRedirectsToOutputRedirections(redirects: Redirect[]): {
 //   - the wrapper-stripping loop in checkSemantics (src/utils/bash/ast.ts ~1860)
 // If you add a wrapper in either, add it here too. Asymmetry means
 // checkSemantics exposes the wrapped command to semantic checks but path
-// validation sees the wrapper name → passthrough → wrapped paths never
+// validation sees the wrapper name �?passthrough �?wrapped paths never
 // validated (PR #21503 review comment 2907319120).
 // ───────────────────────────────────────────────────────────────────────────
 
 // SECURITY: allowlist for timeout flag VALUES (signals are TERM/KILL/9,
 // durations are 5/5s/10.5). Rejects $ ( ) ` | ; & and newlines that
-// previously matched via [^ \t]+ — `timeout -k$(id) 10 ls` must NOT strip.
+// previously matched via [^ \t]+ �?`timeout -k$(id) 10 ls` must NOT strip.
 const TIMEOUT_FLAG_VALUE_RE = /^[A-Za-z0-9_.+-]+$/
 
 /**
@@ -1268,16 +1268,15 @@ export function stripWrappersFromArgv(argv: string[]): string[] {
     } else if (a[0] === 'timeout') {
       const i = skipTimeoutFlags(a)
       // SECURITY (PR #21503 round 3): unrecognized duration (`.5`, `+5`,
-      // `inf` — strtod formats GNU timeout accepts) → return a unchanged.
+      // `inf` �?strtod formats GNU timeout accepts) �?return a unchanged.
       // Safe because checkSemantics (ast.ts) fails CLOSED on the same input
       // and runs first in bashToolHasPermission, so we never reach here.
       if (i < 0 || !a[i] || !/^\d+(?:\.\d+)?[smhd]?$/.test(a[i]!)) return a
       a = a.slice(i + 1)
     } else if (a[0] === 'nice') {
-      // SECURITY (PR #21503 round 3): mirror checkSemantics — handle bare
+      // SECURITY (PR #21503 round 3): mirror checkSemantics �?handle bare
       // `nice cmd` and legacy `nice -N cmd`, not just `nice -n N cmd`.
-      // Previously only `-n N` was stripped: `nice rm /outside` →
-      // baseCmd='nice' → passthrough → /outside never path-validated.
+      // Previously only `-n N` was stripped: `nice rm /outside` �?      // baseCmd='nice' �?passthrough �?/outside never path-validated.
       if (a[1] === '-n' && a[2] && /^-?\d+$/.test(a[2]))
         a = a.slice(a[3] === '--' ? 4 : 3)
       else if (a[1] && /^-\d+$/.test(a[1])) a = a.slice(a[2] === '--' ? 3 : 2)
@@ -1285,9 +1284,8 @@ export function stripWrappersFromArgv(argv: string[]): string[] {
     } else if (a[0] === 'stdbuf') {
       // SECURITY (PR #21503 round 3): PR-WIDENED. Pre-PR, `stdbuf -o0 -eL rm`
       // was rejected by fragment check (old checkSemantics slice(2) left
-      // name='-eL'). Post-PR, checkSemantics strips both flags → name='rm'
-      // → passes. But stripWrappersFromArgv returned unchanged →
-      // baseCmd='stdbuf' → not in SUPPORTED_PATH_COMMANDS → passthrough.
+      // name='-eL'). Post-PR, checkSemantics strips both flags �?name='rm'
+      // �?passes. But stripWrappersFromArgv returned unchanged �?      // baseCmd='stdbuf' �?not in SUPPORTED_PATH_COMMANDS �?passthrough.
       const i = skipStdbufFlags(a)
       if (i < 0) return a
       a = a.slice(i)

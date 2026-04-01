@@ -36,11 +36,11 @@ function isGateEnabled(): boolean {
   return getFeatureValue_CACHED_MAY_BE_STALE(TRUSTED_DEVICE_GATE, false)
 }
 
-// Memoized â€” secureStorage.read() spawns a macOS `security` subprocess (~40ms).
+// Memoized â€?secureStorage.read() spawns a macOS `security` subprocess (~40ms).
 // bridgeApi.ts calls this from getHeaders() on every poll/heartbeat/ack.
 // Cache cleared after enrollment (below) and on logout (clearAuthRelatedCaches).
 //
-// Only the storage read is memoized â€” the GrowthBook gate is checked live so
+// Only the storage read is memoized â€?the GrowthBook gate is checked live so
 // that a gate flip after GrowthBook refresh takes effect without a restart.
 const readStoredToken = memoize((): string | undefined => {
   // Env var takes precedence for testing/canary.
@@ -66,7 +66,7 @@ export function clearTrustedDeviceTokenCache(): void {
  * Clear the stored trusted device token from secure storage and the memo cache.
  * Called before enrollTrustedDevice() during /login so a stale token from the
  * previous account isn't sent as X-Trusted-Device-Token while enrollment is
- * in-flight (enrollTrustedDevice is async â€” bridge API calls between login and
+ * in-flight (enrollTrustedDevice is async â€?bridge API calls between login and
  * enrollment completion would otherwise still read the old cached token).
  */
 export function clearTrustedDeviceToken(): void {
@@ -81,14 +81,14 @@ export function clearTrustedDeviceToken(): void {
       secureStorage.update(data)
     }
   } catch {
-    // Best-effort â€” don't block login if storage is inaccessible
+    // Best-effort â€?don't block login if storage is inaccessible
   }
   readStoredToken.cache?.clear?.()
 }
 
 /**
  * Enroll this device via POST /auth/trusted_devices and persist the token
- * to keychain. Best-effort â€” logs and returns on failure so callers
+ * to keychain. Best-effort â€?logs and returns on failure so callers
  * (post-login hooks) don't block the login flow.
  *
  * The server gates enrollment on account_session.created_at < 10min, so
@@ -107,7 +107,7 @@ export async function enrollTrustedDevice(): Promise<void> {
       return
     }
     // If CLAUDE_TRUSTED_DEVICE_TOKEN is set (e.g. by an enterprise wrapper),
-    // skip enrollment â€” the env var takes precedence in readStoredToken() so
+    // skip enrollment â€?the env var takes precedence in readStoredToken() so
     // any enrolled token would be shadowed and never used.
     if (process.env.CLAUDE_TRUSTED_DEVICE_TOKEN) {
       logForDebugging(
@@ -115,8 +115,8 @@ export async function enrollTrustedDevice(): Promise<void> {
       )
       return
     }
-    // Lazy require â€” utils/auth.ts transitively pulls ~1300 modules
-    // (config â†’ file â†’ permissions â†’ sessionStorage â†’ commands). Daemon callers
+    // Lazy require â€?utils/auth.ts transitively pulls ~1300 modules
+    // (config â†?file â†?permissions â†?sessionStorage â†?commands). Daemon callers
     // of getTrustedDeviceToken() don't need this; only /login does.
     /* eslint-disable @typescript-eslint/no-require-imports */
     const { getClaudeAIOAuthTokens } =
@@ -127,7 +127,7 @@ export async function enrollTrustedDevice(): Promise<void> {
       logForDebugging('[trusted-device] No OAuth token, skipping enrollment')
       return
     }
-    // Always re-enroll on /login â€” the existing token may belong to a
+    // Always re-enroll on /login â€?the existing token may belong to a
     // different account (account-switch without /logout). Skipping enrollment
     // would send the old account's token on the new account's bridge calls.
     const secureStorage = getSecureStorage()
@@ -147,7 +147,7 @@ export async function enrollTrustedDevice(): Promise<void> {
         device_id?: string
       }>(
         `${baseUrl}/api/auth/trusted_devices`,
-        { display_name: `Claude Code on ${hostname()} Â· ${process.platform}` },
+        { display_name: `xccodex on ${hostname()} Â· ${process.platform}` },
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,

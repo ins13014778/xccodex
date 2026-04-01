@@ -17,7 +17,7 @@ function loadProjectOnboardingState(existingInstructionFiles = []) {
   const source = readSource('src/projectOnboardingState.ts')
   const executableSource = source
     .replace(/^[\s\S]*?(?=export type Step)/, '')
-    .replace(/export type Step = \{[\s\S]*?\n\}\n\n/, '')
+    .replace(/export type Step = \{[\s\S]*?\}\s*/m, '')
     .replace(/export function /g, 'function ')
     .replace(
       /export const shouldShowProjectOnboarding = /,
@@ -82,17 +82,17 @@ function getInstructionStep(existingInstructionFiles = []) {
   }
 }
 
-test('onboarding copy references xccode and XCCODE.md', () => {
+test('onboarding copy references xccodex and XCCODE.md', () => {
   const { instructionStep } = getInstructionStep()
   const { getSteps } = loadProjectOnboardingState()
 
   assert.equal(
     getSteps()[0]?.text,
-    'Ask xccode to create a new app or clone a repository',
+    'Ask xccodex to create a new app or clone a repository',
   )
   assert.equal(
     instructionStep?.text,
-    'Run /init to create a XCCODE.md file with instructions for xccode',
+    'Run /init to create a XCCODE.md file with instructions for xccodex',
   )
 })
 
@@ -135,14 +135,14 @@ test('project onboarding checks XCCODE.md before falling back to CLAUDE.md', () 
   assert.deepEqual(existsSyncCalls, [xccodePath, claudePath])
 })
 
-test('main help copy points to XCCODE.md and xccode', () => {
+test('main help copy points to XCCODE.md and xccodex', () => {
   const text = readSource('src/main.tsx')
 
   assert.match(text, /XCCODE\.md auto-discovery/)
   assert.match(text, /--add-dir \(XCCODE\.md dirs\)/)
   assert.match(
     text,
-    /"# xccode up" section of the nearest XCCODE\.md/,
+    /"# xccodex up" section of the nearest XCCODE\.md/,
   )
 })
 

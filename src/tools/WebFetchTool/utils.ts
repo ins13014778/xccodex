@@ -20,7 +20,7 @@ import { makeSecondaryModelPrompt } from './prompt.js'
 // Custom error classes for domain blocking
 class DomainBlockedError extends Error {
   constructor(domain: string) {
-    super(`Claude Code is unable to fetch from ${domain}`)
+    super(`xccodex is unable to fetch from ${domain}`)
     this.name = 'DomainBlockedError'
   }
 }
@@ -71,10 +71,10 @@ const URL_CACHE = new LRUCache<string, CacheEntry>({
 // Separate cache for preflight domain checks. URL_CACHE is URL-keyed, so
 // fetching two paths on the same domain triggers two identical preflight
 // HTTP round-trips to api.anthropic.com. This hostname-keyed cache avoids
-// that. Only 'allowed' is cached â€” blocked/failed re-check on next attempt.
+// that. Only 'allowed' is cached â€?blocked/failed re-check on next attempt.
 const DOMAIN_CHECK_CACHE = new LRUCache<string, true>({
   max: 128,
-  ttl: 5 * 60 * 1000, // 5 minutes â€” shorter than URL_CACHE TTL
+  ttl: 5 * 60 * 1000, // 5 minutes â€?shorter than URL_CACHE TTL
 })
 
 export function clearWebFetchCache(): void {
@@ -82,11 +82,11 @@ export function clearWebFetchCache(): void {
   DOMAIN_CHECK_CACHE.clear()
 }
 
-// Lazy singleton â€” defers the turndown â†’ @mixmark-io/domino import (~1.4MB
+// Lazy singleton â€?defers the turndown â†?@mixmark-io/domino import (~1.4MB
 // retained heap) until the first HTML fetch, and reuses one instance across
 // calls (construction builds 15 rule objects; .turndown() is stateless).
 // @types/turndown ships only `export =` (no .d.mts), so TS types the import
-// as the class itself while Bun wraps CJS in { default } â€” hence the cast.
+// as the class itself while Bun wraps CJS in { default } â€?hence the cast.
 type TurndownCtor = typeof import('turndown')
 let turndownServicePromise: Promise<InstanceType<TurndownCtor>> | undefined
 function getTurndownService(): Promise<InstanceType<TurndownCtor>> {
@@ -100,7 +100,7 @@ function getTurndownService(): Promise<InstanceType<TurndownCtor>> {
 // for a data exfiltration. However, this is too restrictive for some customers'
 // legitimate use cases, such as JWT-signed URLs (e.g., cloud service signed URLs)
 // that can be much longer. We already require user approval for each domain,
-// which provides a primary security boundary. In addition, Claude Code has
+// which provides a primary security boundary. In addition, xccodex has
 // other data exfil channels, and this one does not seem relatively high risk,
 // so I'm removing that length restriction. -ab
 const MAX_URL_LENGTH = 2000
@@ -119,7 +119,7 @@ const FETCH_TIMEOUT_MS = 60_000
 const DOMAIN_CHECK_TIMEOUT_MS = 10_000
 
 // Cap same-host redirect hops. Without this a malicious server can return
-// a redirect loop (/a â†’ /b â†’ /a â€¦) and the per-request FETCH_TIMEOUT_MS
+// a redirect loop (/a â†?/b â†?/a â€? and the per-request FETCH_TIMEOUT_MS
 // resets on every hop, hanging the tool until user interrupt. 10 matches
 // common client defaults (axios=5, follow-redirects=21, Chrome=20).
 const MAX_REDIRECTS = 10
@@ -434,7 +434,7 @@ export async function getURLMarkdownContent(
 
   // Binary content: save raw bytes to disk with a proper extension so Claude
   // can inspect the file later. We still fall through to the utf-8 decode +
-  // Haiku path below â€” for PDFs in particular the decoded string has enough
+  // Haiku path below â€?for PDFs in particular the decoded string has enough
   // ASCII structure (/Title, text streams) that Haiku can summarize it, and
   // the saved file is a supplement rather than a replacement.
   let persistedPath: string | undefined
@@ -459,7 +459,7 @@ export async function getURLMarkdownContent(
   } else {
     // It's not HTML - just use it raw. The decoded string's UTF-8 byte
     // length equals rawBuffer.length (modulo U+FFFD replacement on invalid
-    // bytes â€” negligible for cache eviction accounting), so skip the O(n)
+    // bytes â€?negligible for cache eviction accounting), so skip the O(n)
     // Buffer.byteLength scan.
     markdownContent = htmlContent
     contentBytes = bytes

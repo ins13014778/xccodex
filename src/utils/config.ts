@@ -45,7 +45,7 @@ import type { ImageDimensions } from './imageResizer.js'
 import type { ModelOption } from './model/modelOptions.js'
 import { jsonParse, jsonStringify } from './slowOperations.js'
 
-// Re-entrancy guard: prevents getConfig â†’ logEvent â†’ getGlobalConfig â†’ getConfig
+// Re-entrancy guard: prevents getConfig â†?logEvent â†?getGlobalConfig â†?getConfig
 // infinite recursion when the config file is corrupted. logEvent's sampling check
 // reads GrowthBook features from the global config, which calls getConfig again.
 let insideGetConfig = false
@@ -266,7 +266,7 @@ export type GlobalConfig = {
     [tipId: string]: number // Key is tipId, value is the numStartups when tip was last shown
   }
 
-  // /buddy companion soul â€” bones regenerated from userId on read. See src/buddy/.
+  // /buddy companion soul â€?bones regenerated from userId on read. See src/buddy/.
   companion?: import('../buddy/types.js').StoredCompanion
   companionMuted?: boolean
 
@@ -313,9 +313,9 @@ export type GlobalConfig = {
   // Guest passes upsell tracking
   passesUpsellSeenCount?: number // Number of times the guest passes upsell has been shown
   hasVisitedPasses?: boolean // Whether the user has visited /passes command
-  passesLastSeenRemaining?: number // Last seen remaining_passes count â€” reset upsell when it increases
+  passesLastSeenRemaining?: number // Last seen remaining_passes count â€?reset upsell when it increases
 
-  // Overage credit grant upsell tracking (keyed by org UUID â€” multi-org users).
+  // Overage credit grant upsell tracking (keyed by org UUID â€?multi-org users).
   // Inlined shape (not import()) because config.ts is in the SDK build surface
   // and the SDK bundler can't resolve CLI service modules.
   overageCreditGrantCache?: Record<
@@ -332,12 +332,12 @@ export type GlobalConfig = {
     }
   >
   overageCreditUpsellSeenCount?: number // Number of times the overage credit upsell has been shown
-  hasVisitedExtraUsage?: boolean // Whether the user has visited /extra-usage â€” hides credit upsells
+  hasVisitedExtraUsage?: boolean // Whether the user has visited /extra-usage â€?hides credit upsells
 
   // Voice mode notice tracking
   voiceNoticeSeenCount?: number // Number of times the voice-mode-available notice has been shown
   voiceLangHintShownCount?: number // Number of times the /voice dictation-language hint has been shown
-  voiceLangHintLastLanguage?: string // Resolved STT language code when the hint was last shown â€” reset count when it changes
+  voiceLangHintLastLanguage?: string // Resolved STT language code when the hint was last shown â€?reset count when it changes
   voiceFooterHintSeenCount?: number // Number of sessions the "hold X to speak" footer hint has been shown
 
   // Opus 1M merge notice tracking
@@ -370,7 +370,7 @@ export type GlobalConfig = {
   showSpinnerTree?: boolean // Whether to show the teammate spinner tree instead of pills
 
   // First start time tracking
-  firstStartTime?: string // ISO timestamp when Claude Code was first started on this machine
+  firstStartTime?: string // ISO timestamp when xccodex was first started on this machine
 
   messageIdleNotifThresholdMs: number // How long the user has to have been idle to get a notification that Claude is done generating
 
@@ -388,13 +388,13 @@ export type GlobalConfig = {
   // from the title (the dot makes it redundant).
   showStatusInTerminalTab?: boolean
 
-  // Push-notification toggles (set via /config). Default off â€” explicit opt-in required.
+  // Push-notification toggles (set via /config). Default off â€?explicit opt-in required.
   taskCompleteNotifEnabled?: boolean
   inputNeededNotifEnabled?: boolean
   agentPushNotifEnabled?: boolean
 
-  // Claude Code usage tracking
-  claudeCodeFirstTokenDate?: string // ISO timestamp of the user's first Claude Code OAuth token
+  // xccodex usage tracking
+  claudeCodeFirstTokenDate?: string // ISO timestamp of the user's first xccodex OAuth token
 
   // Model switch callout tracking (ant-only)
   modelSwitchCalloutDismissed?: boolean // Whether user chose "Don't show again"
@@ -409,7 +409,7 @@ export type GlobalConfig = {
   remoteDialogSeen?: boolean
 
   // Cross-process backoff for initReplBridge's oauth_expired_unrefreshable skip.
-  // `expiresAt` is the dedup key â€” content-addressed, self-clears when /login
+  // `expiresAt` is the dedup key â€?content-addressed, self-clears when /login
   // replaces the token. `failCount` caps false positives: transient refresh
   // failures (auth server 5xx, lock errors) get 3 retries before backoff kicks
   // in, mirroring useReplBridge's MAX_CONSECUTIVE_INIT_FAILURES. Dead-token
@@ -431,10 +431,10 @@ export type GlobalConfig = {
   // Sonnet 4.5 1m migration tracking
   sonnet1m45MigrationComplete?: boolean
 
-  // Opus 4.0/4.1 â†’ current Opus migration (shows one-time notif)
+  // Opus 4.0/4.1 â†?current Opus migration (shows one-time notif)
   legacyOpusMigrationTimestamp?: number
 
-  // Sonnet 4.5 â†’ 4.6 migration (pro/max/team premium)
+  // Sonnet 4.5 â†?4.6 migration (pro/max/team premium)
   sonnet45To46MigrationTimestamp?: number
 
   // Cached statsig gate values
@@ -462,7 +462,7 @@ export type GlobalConfig = {
   copyFullResponse: boolean // Whether /copy always copies the full response instead of showing the picker
 
   // Fullscreen in-app text selection behavior
-  copyOnSelect?: boolean // Auto-copy to clipboard on mouse-up (undefined â†’ true; lets cmd+c "work" via no-op)
+  copyOnSelect?: boolean // Auto-copy to clipboard on mouse-up (undefined â†?true; lets cmd+c "work" via no-op)
 
   // GitHub repo path mapping for teleport directory switching
   // Key: "owner/repo" (lowercase), Value: array of absolute paths where repo is cloned
@@ -507,13 +507,13 @@ export type GlobalConfig = {
   lspRecommendationNeverPlugins?: string[] // Plugin IDs to never suggest
   lspRecommendationIgnoredCount?: number // Track ignored recommendations (stops after 5)
 
-  // Claude Code hint protocol state (<claude-code-hint /> tags from CLIs/SDKs).
+  // xccodex hint protocol state (<claude-code-hint /> tags from CLIs/SDKs).
   // Nested by hint type so future types (docs, mcp, ...) slot in without new
   // top-level keys.
   claudeCodeHints?: {
     // Plugin IDs the user has already been prompted for. Show-once semantics:
     // recorded regardless of yes/no response, never re-prompted. Capped at
-    // 100 entries to bound config growth â€” past that, hints stop entirely.
+    // 100 entries to bound config growth â€?past that, hints stop entirely.
     plugin?: string[]
     // User chose "don't show plugin installation hints again" from the dialog.
     disabled?: boolean
@@ -579,7 +579,7 @@ export type GlobalConfig = {
 
 /**
  * Factory for a fresh default GlobalConfig. Used instead of deep-cloning a
- * shared constant â€” the nested containers (arrays, records) are all empty, so
+ * shared constant â€?the nested containers (arrays, records) are all empty, so
  * a factory gives fresh refs at zero clone cost.
  */
 function createDefaultGlobalConfig(): GlobalConfig {
@@ -696,7 +696,7 @@ export function resetTrustDialogAcceptedCacheForTesting(): void {
 
 export function checkHasTrustDialogAccepted(): boolean {
   // Trust only transitions falseâ†’true during a session (never the reverse),
-  // so once true we can latch it. false is not cached â€” it gets re-checked
+  // so once true we can latch it. false is not cached â€?it gets re-checked
   // on every call so that trust dialog acceptance is picked up mid-session.
   // (lodash memoize doesn't fit here because it would also cache false.)
   return (_trustAccepted ||= computeTrustDialogAccepted())
@@ -746,7 +746,7 @@ function computeTrustDialogAccepted(): boolean {
  * Check trust for an arbitrary directory (not the session cwd).
  * Walks up from `dir`, returning true if any ancestor has trust persisted.
  * Unlike checkHasTrustDialogAccepted, this does NOT consult session trust or
- * the memoized project path â€” use when the target dir differs from cwd (e.g.
+ * the memoized project path â€?use when the target dir differs from cwd (e.g.
  * /assistant installing into a user-typed path).
  */
 export function isPathTrusted(dir: string): boolean {
@@ -993,7 +993,7 @@ const CONFIG_FRESHNESS_POLL_MS = 1000
 let freshnessWatcherStarted = false
 
 // fs.watchFile polls stat on the libuv threadpool and only calls us when mtime
-// changed â€” a stalled stat never blocks the main thread.
+// changed â€?a stalled stat never blocks the main thread.
 function startGlobalConfigFreshnessWatcher(): void {
   if (freshnessWatcherStarted || process.env.NODE_ENV === 'test') return
   freshnessWatcherStarted = true
@@ -1002,10 +1002,10 @@ function startGlobalConfigFreshnessWatcher(): void {
     file,
     { interval: CONFIG_FRESHNESS_POLL_MS, persistent: false },
     curr => {
-      // Our own writes fire this too â€” the write-through's Date.now()
+      // Our own writes fire this too â€?the write-through's Date.now()
       // overshoot makes cache.mtime > file mtime, so we skip the re-read.
       // Bun/Node also fire with curr.mtimeMs=0 when the file doesn't exist
-      // (initial callback or deletion) â€” the <= handles that too.
+      // (initial callback or deletion) â€?the <= handles that too.
       if (curr.mtimeMs <= globalConfigCache.mtime) return
       void getFsImplementation()
         .readFile(file, { encoding: 'utf-8' })
@@ -1046,7 +1046,7 @@ export function getGlobalConfig(): GlobalConfig {
     return TEST_GLOBAL_CONFIG_FOR_TESTING
   }
 
-  // Fast path: pure memory read. After startup, this always hits â€” our own
+  // Fast path: pure memory read. After startup, this always hits â€?our own
   // writes go write-through and other instances' writes are picked up by the
   // background freshness watcher (never blocks this path).
   if (globalConfigCache.config) {
@@ -1056,7 +1056,7 @@ export function getGlobalConfig(): GlobalConfig {
 
   // Slow path: startup load. Sync I/O here is acceptable because it runs
   // exactly once, before any UI is rendered. Stat before read so any race
-  // self-corrects (old mtime + new content â†’ watcher re-reads next tick).
+  // self-corrects (old mtime + new content â†?watcher re-reads next tick).
   configCacheMisses++
   try {
     let stats: { mtimeMs: number; size: number } | null = null
@@ -1087,7 +1087,7 @@ export function getGlobalConfig(): GlobalConfig {
 
 /**
  * Returns the effective value of remoteControlAtStartup. Precedence:
- *   1. User's explicit config value (always wins â€” honors opt-out)
+ *   1. User's explicit config value (always wins â€?honors opt-out)
  *   2. CCR auto-connect default (ant-only build, GrowthBook-gated)
  *   3. false (Remote Control must be explicitly opted into)
  */
@@ -1474,7 +1474,7 @@ function getConfig<A>(
         { level: 'error' },
       )
 
-      // Guard: logEvent â†’ shouldSampleEvent â†’ getGlobalConfig â†’ getConfig
+      // Guard: logEvent â†?shouldSampleEvent â†?getGlobalConfig â†?getConfig
       // causes infinite recursion when the config file is corrupted, because
       // the sampling check reads a GrowthBook feature from global config.
       // Only log analytics on the outermost call.

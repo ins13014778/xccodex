@@ -7,7 +7,7 @@
  * session but is destroyed when the instance exits.
  *
  * Meta+J is bound to detach-client inside tmux, so pressing it returns to
- * Claude Code while the shell keeps running. Next toggle re-attaches to the
+ * xccodex while the shell keeps running. Next toggle re-attaches to the
  * same session.
  *
  * When tmux is not available, falls back to a non-persistent shell via spawnSync.
@@ -26,7 +26,7 @@ const TMUX_SESSION = 'panel'
 
 /**
  * Get the tmux socket name for the terminal panel.
- * Uses a unique socket per Claude Code instance (based on session ID)
+ * Uses a unique socket per xccodex instance (based on session ID)
  * so that each instance has its own isolated terminal panel.
  */
 export function getTerminalPanelSocket(): string {
@@ -109,7 +109,7 @@ class TerminalPanel {
       return false
     }
 
-    // Bind Meta+J (toggles back to Claude Code from inside the terminal)
+    // Bind Meta+J (toggles back to xccodex from inside the terminal)
     // and configure the status bar hint. Chained with ';' to collapse
     // 5 spawnSync calls into 1.
     // biome-ignore format: one tmux command per line
@@ -125,10 +125,10 @@ class TerminalPanel {
     if (!this.cleanupRegistered) {
       this.cleanupRegistered = true
       registerCleanup(async () => {
-        // Detached async spawn â€” spawnSync here would block the event loop
+        // Detached async spawn â€?spawnSync here would block the event loop
         // and serialize the entire cleanup Promise.all in gracefulShutdown.
         // .on('error') swallows ENOENT if tmux disappears between session
-        // creation and cleanup â€” prevents spurious uncaughtException noise.
+        // creation and cleanup â€?prevents spurious uncaughtException noise.
         spawn('tmux', ['-L', socket, 'kill-server'], {
           detached: true,
           stdio: 'ignore',
@@ -178,7 +178,7 @@ class TerminalPanel {
     return this.createSession()
   }
 
-  /** Fallback when tmux is not available â€” runs a non-persistent shell. */
+  /** Fallback when tmux is not available â€?runs a non-persistent shell. */
   private runShellDirect(): void {
     const shell = process.env.SHELL || '/bin/bash'
     const cwd = pwd()

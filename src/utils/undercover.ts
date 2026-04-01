@@ -1,18 +1,18 @@
 /**
- * Undercover mode â€” safety utilities for contributing to public/open-source repos.
+ * Undercover mode â€?safety utilities for contributing to public/open-source repos.
  *
- * When active, Claude Code adds safety instructions to commit/PR prompts and
+ * When active, xccodex adds safety instructions to commit/PR prompts and
  * strips all attribution to avoid leaking internal model codenames, project
  * names, or other Anthropic-internal information. The model is not told what
  * model it is.
  *
  * Activation:
- *   - CLAUDE_CODE_UNDERCOVER=1 â€” force ON (even in internal repos)
+ *   - CLAUDE_CODE_UNDERCOVER=1 â€?force ON (even in internal repos)
  *   - Otherwise AUTO: active UNLESS the repo remote matches the internal
  *     allowlist (INTERNAL_MODEL_REPOS in commitAttribution.ts). Safe default
- *     is ON â€” Claude may push to public remotes from a CWD that isn't itself
+ *     is ON â€?Claude may push to public remotes from a CWD that isn't itself
  *     a git checkout (e.g. /tmp crash repro).
- *   - There is NO force-OFF. This guards against model codename leaks â€” if
+ *   - There is NO force-OFF. This guards against model codename leaks â€?if
  *     we're not confident we're in an internal repo, we stay undercover.
  *
  * All code paths are gated on process.env.USER_TYPE === 'ant'. Since USER_TYPE is
@@ -30,7 +30,7 @@ export function isUndercover(): boolean {
     if (isEnvTruthy(process.env.CLAUDE_CODE_UNDERCOVER)) return true
     // Auto: active unless we've positively confirmed we're in an allowlisted
     // internal repo. 'external', 'none', and null (check not yet run) all
-    // resolve to ON. The check is primed in setup.ts; only 'internal' â†’ OFF.
+    // resolve to ON. The check is primed in setup.ts; only 'internal' â†?OFF.
     return getRepoClassCached() !== 'internal'
   }
   return false
@@ -38,7 +38,7 @@ export function isUndercover(): boolean {
 
 export function getUndercoverInstructions(): string {
   if (process.env.USER_TYPE === 'ant') {
-    return `## UNDERCOVER MODE â€” CRITICAL
+    return `## UNDERCOVER MODE â€?CRITICAL
 
 You are operating UNDERCOVER in a PUBLIC/OPEN-SOURCE repository. Your commit
 messages, PR titles, and PR bodies MUST NOT contain ANY Anthropic-internal
@@ -47,13 +47,13 @@ information. Do not blow your cover.
 NEVER include in commit messages or PR descriptions:
 - Internal model codenames (animal names like Capybara, Tengu, etc.)
 - Unreleased model version numbers (e.g., opus-4-7, sonnet-4-8)
-- Internal repo or project names (e.g., claude-cli-internal, anthropics/â€¦)
-- Internal tooling, Slack channels, or short links (e.g., go/cc, #claude-code-â€¦)
-- The phrase "Claude Code" or any mention that you are an AI
+- Internal repo or project names (e.g., claude-cli-internal, anthropics/â€?
+- Internal tooling, Slack channels, or short links (e.g., go/cc, #claude-code-â€?
+- The phrase "xccodex" or any mention that you are an AI
 - Any hint of what model or version you are
 - Co-Authored-By lines or any other attribution
 
-Write commit messages as a human developer would â€” describe only what the code
+Write commit messages as a human developer would â€?describe only what the code
 change does.
 
 GOOD:
@@ -64,8 +64,8 @@ GOOD:
 BAD (never write these):
 - "Fix bug found while testing with Claude Capybara"
 - "1-shotted by claude-opus-4-6"
-- "Generated with Claude Code"
-- "Co-Authored-By: Claude Opus 4.6 <â€¦>"
+- "Generated with xccodex"
+- "Co-Authored-By: Claude Opus 4.6 <â€?"
 `
   }
   return ''
@@ -74,7 +74,7 @@ BAD (never write these):
 /**
  * Check whether to show the one-time explainer dialog for auto-undercover.
  * True when: undercover is active via auto-detection (not forced via env),
- * and the user hasn't seen the notice before. Pure â€” the component marks the
+ * and the user hasn't seen the notice before. Pure â€?the component marks the
  * flag on mount.
  */
 export function shouldShowUndercoverAutoNotice(): boolean {

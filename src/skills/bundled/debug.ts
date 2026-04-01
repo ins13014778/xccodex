@@ -14,7 +14,7 @@ export function registerDebugSkill(): void {
     name: 'debug',
     description:
       process.env.USER_TYPE === 'ant'
-        ? 'Debug your current Claude Code session by reading the session debug log. Includes all event logging'
+        ? 'Debug your current xccodex session by reading the session debug log. Includes all event logging'
         : 'Enable debug logging for this session and help diagnose issues',
     allowedTools: ['Read', 'Grep', 'Glob'],
     argumentHint: '[issue description]',
@@ -23,7 +23,7 @@ export function registerDebugSkill(): void {
     disableModelInvocation: true,
     userInvocable: true,
     async getPromptForCommand(args) {
-      // Non-ants don't write debug logs by default â€” turn logging on now so
+      // Non-ants don't write debug logs by default â€?turn logging on now so
       // subsequent activity in this session is captured.
       const wasAlreadyLogging = enableDebugLogging()
       const debugLogPath = getDebugLogPath()
@@ -52,7 +52,7 @@ export function registerDebugSkill(): void {
         }
       } catch (e) {
         logInfo = isENOENT(e)
-          ? 'No debug log exists yet â€” logging was just enabled.'
+          ? 'No debug log exists yet â€?logging was just enabled.'
           : `Failed to read last ${DEFAULT_DEBUG_LINES_READ} lines of debug log: ${errorMessage(e)}`
       }
 
@@ -68,7 +68,7 @@ Tell the user that debug logging is now active at \`${debugLogPath}\`, ask them 
 
       const prompt = `# Debug Skill
 
-Help the user debug an issue they're encountering in this current Claude Code session.
+Help the user debug an issue they're encountering in this current xccodex session.
 ${justEnabledSection}
 ## Session Debug Log
 
@@ -93,7 +93,7 @@ Remember that settings are in:
 
 1. Review the user's issue description
 2. The last ${DEFAULT_DEBUG_LINES_READ} lines show the debug file format. Look for [ERROR] and [WARN] entries, stack traces, and failure patterns across the file
-3. Consider launching the ${CLAUDE_CODE_GUIDE_AGENT_TYPE} subagent to understand the relevant Claude Code features
+3. Consider launching the ${CLAUDE_CODE_GUIDE_AGENT_TYPE} subagent to understand the relevant xccodex features
 4. Explain what you found in plain language
 5. Suggest concrete fixes or next steps
 `

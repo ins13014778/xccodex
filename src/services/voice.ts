@@ -14,7 +14,7 @@ import { getPlatform } from '../utils/platform.js'
 // Lazy-loaded native audio module. audio-capture.node links against
 // CoreAudio.framework + AudioUnit.framework; dlopen is synchronous and
 // blocks the event loop for ~1s warm, up to ~8s on cold coreaudiod
-// (post-wake, post-boot). Load happens on first voice keypress â€” no
+// (post-wake, post-boot). Load happens on first voice keypress â€?no
 // preload, because there's no way to make dlopen non-blocking and a
 // startup freeze is worse than a first-press delay.
 type AudioNapi = typeof import('audio-capture-napi')
@@ -26,7 +26,7 @@ function loadAudioNapi(): Promise<AudioNapi> {
     const t0 = Date.now()
     const mod = await import('audio-capture-napi')
     // vendor/audio-capture-src/index.ts defers require(...node) until the
-    // first function call â€” trigger it here so timing reflects real cost.
+    // first function call â€?trigger it here so timing reflects real cost.
     mod.isNativeAudioAvailable()
     audioNapi = mod
     logForDebugging(`[voice] audio-capture-napi loaded in ${Date.now() - t0}ms`)
@@ -48,11 +48,11 @@ const SILENCE_THRESHOLD = '3%'
 
 function hasCommand(cmd: string): boolean {
   // Spawn the target directly instead of `which cmd`. On Termux/Android
-  // `which` is a shell builtin â€” the external binary is absent or
+  // `which` is a shell builtin â€?the external binary is absent or
   // kernel-blocked (EPERM) when spawned from Node. Only reached on
   // non-Windows (win32 returns early from all callers), no PATHEXT issue.
   // result.error is set iff the spawn itself fails (ENOENT/EACCES); exit
-  // code is irrelevant â€” an unrecognized --version still means cmd exists.
+  // code is irrelevant â€?an unrecognized --version still means cmd exists.
   const result = spawnSync(cmd, ['--version'], {
     stdio: 'ignore',
     timeout: 3000,
@@ -66,7 +66,7 @@ function hasCommand(cmd: string): boolean {
 // server. On WSL2+WSLg (Win11), PulseAudio works via RDP pipes and arecord
 // succeeds. We spawn with the same args as startArecordRecording() and race
 // a short timer: if the process is still alive after 150ms it opened the
-// device; if it exits early the stderr tells us why. Memoized â€” audio
+// device; if it exits early the stderr tells us why. Memoized â€?audio
 // device availability does not change mid-session, and this is called on
 // every voice keypress via checkRecordingAvailability().
 type ArecordProbeResult = { ok: boolean; stderr: string }
@@ -122,7 +122,7 @@ export function _resetArecordProbeForTesting(): void {
 }
 
 // cpal's ALSA backend writes to our process stderr when it can't find any
-// sound cards (it runs in-process â€” no subprocess pipe to capture it). The
+// sound cards (it runs in-process â€?no subprocess pipe to capture it). The
 // spawn fallbacks below pipe stderr correctly, so skip native when ALSA has
 // nothing to open. Memoized: card presence doesn't change mid-session.
 let linuxAlsaCardsMemo: Promise<boolean> | null = null
@@ -198,7 +198,7 @@ export async function checkVoiceDependencies(): Promise<{
     return { available: true, missing: [], installCommand: null }
   }
 
-  // Windows has no supported fallback â€” native module is required
+  // Windows has no supported fallback â€?native module is required
   if (process.platform === 'win32') {
     return {
       available: false,
@@ -233,7 +233,7 @@ export type RecordingAvailability = {
   reason: string | null
 }
 
-// Probe-record through the full fallback chain (native â†’ arecord â†’ SoX)
+// Probe-record through the full fallback chain (native â†?arecord â†?SoX)
 // to verify that at least one backend can record. On macOS this also
 // triggers the TCC permission dialog on first use. We trust the probe
 // result over the TCC status API, which can be unreliable for ad-hoc
@@ -245,7 +245,7 @@ export async function requestMicrophonePermission(): Promise<boolean> {
   }
 
   const started = await startRecording(
-    _chunk => {}, // discard audio data â€” this is a permission probe only
+    _chunk => {}, // discard audio data â€?this is a permission probe only
     () => {}, // ignore silence-detection end signal
     { silenceDetection: false },
   )
@@ -262,7 +262,7 @@ export async function checkRecordingAvailability(): Promise<RecordingAvailabilit
     return {
       available: false,
       reason:
-        'Voice mode requires microphone access, but no audio device is available in this environment.\n\nTo use voice mode, run Claude Code locally instead.',
+        'Voice mode requires microphone access, but no audio device is available in this environment.\n\nTo use voice mode, run xccodex locally instead.',
     }
   }
 
@@ -282,12 +282,12 @@ export async function checkRecordingAvailability(): Promise<RecordingAvailabilit
   }
 
   const wslNoAudioReason =
-    'Voice mode could not access an audio device in WSL.\n\nWSL2 with WSLg (Windows 11) provides audio via PulseAudio â€” if you are on Windows 10 or WSL1, run Claude Code in native Windows instead.'
+    'Voice mode could not access an audio device in WSL.\n\nWSL2 with WSLg (Windows 11) provides audio via PulseAudio â€?if you are on Windows 10 or WSL1, run xccodex in native Windows instead.'
 
   // On Linux (including WSL), probe arecord. hasCommand() is insufficient:
   // the binary can exist while the device open() fails (WSL1, Win10-WSL2,
   // headless Linux). WSL2+WSLg (Win11 default) works via PulseAudio RDP
-  // pipes â€” cpal fails (no /proc/asound/cards) but arecord succeeds.
+  // pipes â€?cpal fails (no /proc/asound/cards) but arecord succeeds.
   if (process.platform === 'linux' && hasCommand('arecord')) {
     const probe = await probeArecord()
     if (probe.ok) {
@@ -306,10 +306,10 @@ export async function checkRecordingAvailability(): Promise<RecordingAvailabilit
     // hint below is misleading on WSL1/Win10 (no audio devices at all),
     // but correct on WSL2+WSLg (SoX works via PulseAudio). Since we can't
     // distinguish WSLg-vs-not without a backend to probe, show the WSLg
-    // guidance â€” it points WSL1 users at native Windows AND tells WSLg
+    // guidance â€?it points WSL1 users at native Windows AND tells WSLg
     // users their setup should work (they can install sox or alsa-utils).
     // Known gap: WSL with SoX but NO arecord skips both this branch and
-    // the probe above â€” hasCommand('rec') lies the same way. We optimistically
+    // the probe above â€?hasCommand('rec') lies the same way. We optimistically
     // trust it (WSLg+SoX would work) rather than probeSox() for a near-zero
     // population (WSL1 Ã— minimal distro Ã— SoX-but-not-alsa-utils).
     if (getPlatform() === 'wsl') {
@@ -369,7 +369,7 @@ export async function startRecording(
       nativeRecordingActive = true
       return true
     }
-    // Native recording failed â€” fall through to platform fallbacks
+    // Native recording failed â€?fall through to platform fallbacks
   }
 
   // Windows has no supported fallback
@@ -379,7 +379,7 @@ export async function startRecording(
   }
 
   // On Linux, try arecord (ALSA utils) before SoX. Consult the probe so
-  // backend selection matches checkRecordingAvailability() â€” otherwise
+  // backend selection matches checkRecordingAvailability() â€?otherwise
   // on headless Linux with both alsa-utils and SoX, the availability
   // check falls through to SoX (probe.ok=false, not WSL) but this path
   // would still pick broken arecord. Probe is memoized; zero latency.
@@ -481,7 +481,7 @@ function startArecordRecording(
     String(RECORDING_CHANNELS),
     '-t',
     'raw', // raw PCM, no WAV header
-    '-q', // quiet â€” no progress output
+    '-q', // quiet â€?no progress output
     '-', // write to stdout
   ]
 

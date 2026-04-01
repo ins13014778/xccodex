@@ -22,7 +22,7 @@ type ProgressCallback = (
  * Single source of truth for a shell command's output.
  *
  * For bash commands (file mode): both stdout and stderr go directly to
- * a file via stdio fds â€” neither enters JS. Progress is extracted by
+ * a file via stdio fds â€?neither enters JS. Progress is extracted by
  * polling the file tail. getStderr() returns '' since stderr is
  * interleaved in the output file.
  *
@@ -42,9 +42,9 @@ export class TaskOutput {
   #totalBytes = 0
   #maxMemory: number
   #onProgress: ProgressCallback | null
-  /** Set by getStdout() â€” true when the file was fully read (â‰¤ maxOutputLength). */
+  /** Set by getStdout() â€?true when the file was fully read (â‰?maxOutputLength). */
   #outputFileRedundant = false
-  /** Set by getStdout() â€” total file size in bytes. */
+  /** Set by getStdout() â€?total file size in bytes. */
   #outputFileSize = 0
 
   // --- Shared poller state ---
@@ -125,7 +125,7 @@ export class TaskOutput {
           }
           // Count all newlines in the tail and capture slice points for the
           // last 5 and last 100 lines. Uncapped so extrapolation stays accurate
-          // for dense output (short lines â†’ >100 newlines in 4KB).
+          // for dense output (short lines â†?>100 newlines in 4KB).
           let pos = content.length
           let n5 = 0
           let n100 = 0
@@ -163,7 +163,7 @@ export class TaskOutput {
     }
   }
 
-  /** Write stdout data (pipe mode only â€” used by hooks). */
+  /** Write stdout data (pipe mode only â€?used by hooks). */
   writeStdout(data: string): void {
     this.#writeBuffered(data, false)
   }
@@ -283,7 +283,7 @@ export class TaskOutput {
     if (this.stdoutToFile) {
       return this.#readStdoutFromFile()
     }
-    // Pipe mode (hooks) â€” use in-memory data
+    // Pipe mode (hooks) â€?use in-memory data
     if (this.#disk) {
       const recent = this.#recentLines.getRecent(5)
       const tail = safeJoinLines(recent, '\n')
@@ -304,7 +304,7 @@ export class TaskOutput {
       }
       const { content, bytesRead, bytesTotal } = result
       // If the file fits, it's fully captured inline and can be deleted.
-      // If not, return what we read â€” processToolResultBlock handles
+      // If not, return what we read â€?processToolResultBlock handles
       // the <persisted-output> formatting and persistence downstream.
       this.#outputFileSize = bytesTotal
       this.#outputFileRedundant = bytesTotal <= bytesRead
@@ -321,7 +321,7 @@ export class TaskOutput {
       logForDebugging(
         `TaskOutput.#readStdoutFromFile: failed to read ${this.path} (${code}): ${err}`,
       )
-      return `<bash output unavailable: output file ${this.path} could not be read (${code}). This usually means another Claude Code process in the same project deleted it during startup cleanup.>`
+      return `<bash output unavailable: output file ${this.path} could not be read (${code}). This usually means another xccodex process in the same project deleted it during startup cleanup.>`
     }
   }
 

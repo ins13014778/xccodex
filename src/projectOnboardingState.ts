@@ -30,14 +30,14 @@ export function getSteps(): Step[] {
   return [
     {
       key: 'workspace',
-      text: 'Ask xccode to create a new app or clone a repository',
+      text: 'Ask xccodex to create a new app or clone a repository',
       isComplete: false,
       isCompletable: true,
       isEnabled: isWorkspaceDirEmpty,
     },
     {
       key: 'claudemd',
-      text: 'Run /init to create a XCCODE.md file with instructions for xccode',
+      text: 'Run /init to create a XCCODE.md file with instructions for xccodex',
       isComplete: hasProjectRulesFile,
       isCompletable: true,
       isEnabled: !isWorkspaceDirEmpty,
@@ -52,7 +52,7 @@ export function isProjectOnboardingComplete(): boolean {
 }
 
 export function maybeMarkProjectOnboardingComplete(): void {
-  // Short-circuit on cached config — isProjectOnboardingComplete() hits
+  // Short-circuit on cached config �?isProjectOnboardingComplete() hits
   // the filesystem, and REPL.tsx calls this on every prompt submit.
   if (getCurrentProjectConfig().hasCompletedProjectOnboarding) {
     return
@@ -68,7 +68,7 @@ export function maybeMarkProjectOnboardingComplete(): void {
 export const shouldShowProjectOnboarding = memoize((): boolean => {
   const projectConfig = getCurrentProjectConfig()
   // Short-circuit on cached config before isProjectOnboardingComplete()
-  // hits the filesystem — this runs during first render.
+  // hits the filesystem �?this runs during first render.
   if (
     projectConfig.hasCompletedProjectOnboarding ||
     projectConfig.projectOnboardingSeenCount >= 4 ||

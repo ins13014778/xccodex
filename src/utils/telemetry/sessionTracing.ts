@@ -1,8 +1,8 @@
 /**
- * Session Tracing for Claude Code using OpenTelemetry (BETA)
+ * Session Tracing for xccodex using OpenTelemetry (BETA)
  *
  * This module provides a high-level API for creating and managing spans
- * to trace Claude Code workflows. Each user interaction creates a root
+ * to trace xccodex workflows. Each user interaction creates a root
  * interaction span, which contains operation spans (LLM requests, tool calls, etc.).
  *
  * Requirements:
@@ -63,7 +63,7 @@ interface SpanContext {
 }
 
 // ALS stores SpanContext directly so it holds a strong reference while a span
-// is active. With that, activeSpans can use WeakRef â€” when ALS is cleared
+// is active. With that, activeSpans can use WeakRef â€?when ALS is cleared
 // (enterWith(undefined)) and no other code holds the SpanContext, GC can collect
 // it and the WeakRef goes stale.
 const interactionContext = new AsyncLocalStorage<SpanContext | undefined>()
@@ -87,7 +87,7 @@ function getSpanId(span: Span): string {
  *
  * Normal teardown calls endInteractionSpan / endToolSpan, which delete spans
  * immediately. This interval is a safety net for spans that were never ended
- * (e.g. aborted streams, uncaught exceptions mid-query) â€” without it they
+ * (e.g. aborted streams, uncaught exceptions mid-query) â€?without it they
  * accumulate in activeSpans indefinitely, holding references to Span objects
  * and the OpenTelemetry context chain.
  *
@@ -372,7 +372,7 @@ export function endLLMRequestSpan(
     ttftMs?: number
     /** Time spent in pre-request setup before the successful attempt */
     requestSetupMs?: number
-    /** Timestamps (Date.now()) of each attempt start â€” used to emit retry sub-spans */
+    /** Timestamps (Date.now()) of each attempt start â€?used to emit retry sub-spans */
     attemptStartTimes?: number[]
   },
 ): void {

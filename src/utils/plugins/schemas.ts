@@ -323,7 +323,7 @@ const PluginManifestMetadataSchema = lazySchema(() =>
  * Schema for plugin hooks configuration (hooks.json)
  *
  * Defines the hooks that a plugin can provide to intercept and modify
- * Claude Code behavior at various lifecycle events.
+ * xccodex behavior at various lifecycle events.
  */
 export const PluginHooksSchema = lazySchema(() =>
   z.object({
@@ -445,7 +445,7 @@ const PluginManifestCommandsSchema = lazySchema(() =>
       z
         .record(z.string(), CommandMetadataSchema())
         .describe(
-          'Object mapping of command names to their metadata and source files. Command name becomes the slash command name (e.g., "about" â†’ "/plugin:about")',
+          'Object mapping of command names to their metadata and source files. Command name becomes the slash command name (e.g., "about" â†?"/plugin:about")',
         ),
     ]),
   }),
@@ -576,7 +576,7 @@ const PluginManifestMcpServerSchema = lazySchema(() =>
  *
  * Shape intentionally matches `McpbUserConfigurationOption` from
  * `@anthropic-ai/mcpb` so the parsed result is structurally assignable to
- * `UserConfigSchema` in mcpbHandler.ts â€” this lets us reuse
+ * `UserConfigSchema` in mcpbHandler.ts â€?this lets us reuse
  * `validateUserConfig` and the config dialog without modification.
  * `title` and `description` are required (not optional) because the upstream
  * type requires them and the config dialog renders them.
@@ -637,7 +637,7 @@ const PluginManifestUserConfigSchema = lazySchema(() =>
           .string()
           .regex(
             /^[A-Za-z_]\w*$/,
-            'Option keys must be valid identifiers (letters, digits, underscore; no leading digit) â€” they become CLAUDE_PLUGIN_OPTION_<KEY> env vars in hooks',
+            'Option keys must be valid identifiers (letters, digits, underscore; no leading digit) â€?they become CLAUDE_PLUGIN_OPTION_<KEY> env vars in hooks',
           ),
         PluginUserConfigOptionSchema(),
       )
@@ -647,7 +647,7 @@ const PluginManifestUserConfigSchema = lazySchema(() =>
           'Non-sensitive values saved to settings.json; sensitive values to secure storage ' +
           '(macOS keychain or .credentials.json). Available as ${user_config.KEY} in ' +
           'MCP/LSP server config, hook commands, and (non-sensitive only) skill/agent content. ' +
-          'Note: sensitive values share a single keychain entry with OAuth tokens â€” keep ' +
+          'Note: sensitive values share a single keychain entry with OAuth tokens â€?keep ' +
           'secret counts small to stay under the ~2KB stdin-safe limit (see INC-3028).',
       ),
   }),
@@ -662,7 +662,7 @@ const PluginManifestUserConfigSchema = lazySchema(() =>
  * owner IDs) at install time via the PluginOptionsFlow prompt,
  * rather than requiring users to hand-edit settings.json.
  *
- * The `server` field must match a key in the plugin's `mcpServers` â€” this is
+ * The `server` field must match a key in the plugin's `mcpServers` â€?this is
  * not cross-validated at schema parse time (the mcpServers field can be a
  * path to a JSON file we haven't read yet), so the check happens at load
  * time in mcpPluginIntegration.ts instead.
@@ -875,7 +875,7 @@ const PluginManifestSettingsSchema = lazySchema(() =>
  * Unknown top-level fields are silently stripped (zod default) rather than
  * rejected. This keeps plugin loading resilient to custom/future top-level
  * fields that plugin authors may add. Nested config objects (userConfig
- * options, channels, lspServers) remain strict â€” unknown keys inside those
+ * options, channels, lspServers) remain strict â€?unknown keys inside those
  * still fail, since a typo there is more likely to be an author mistake
  * than a vendor extension. Type mismatches and other validation errors
  * still fail at all levels. For developer feedback on unknown top-level
@@ -940,7 +940,7 @@ export const MarketplaceSourceSchema = lazySchema(() =>
     }),
     z.object({
       source: z.literal('git'),
-      // No .endsWith('.git') here â€” that's a GitHub/GitLab/Bitbucket
+      // No .endsWith('.git') here â€?that's a GitHub/GitLab/Bitbucket
       // convention, not a git requirement. Azure DevOps uses
       // https://dev.azure.com/{org}/{proj}/_git/{repo} with no suffix, and
       // appending .git makes ADO look for a repo literally named {repo}.git
@@ -1107,7 +1107,7 @@ export const PluginSourceSchema = lazySchema(() =>
     z.object({
       source: z.literal('url'),
       // See note on MarketplaceSourceSchema source:'git' re: .endsWith('.git')
-      // â€” dropped to support Azure DevOps / CodeCommit URLs (gh-31256).
+      // â€?dropped to support Azure DevOps / CodeCommit URLs (gh-31256).
       url: z.string().describe('Full git repository URL (https:// or git@)'),
       ref: z
         .string()
@@ -1164,7 +1164,7 @@ export const PluginSourceSchema = lazySchema(() =>
  * Narrow plugin entry for settings-sourced marketplaces.
  *
  * Settings-sourced marketplaces point at remote plugins that have their own
- * plugin.json â€” there is no reason to inline commands/agents/hooks/mcp/lsp in
+ * plugin.json â€?there is no reason to inline commands/agents/hooks/mcp/lsp in
  * settings.json. This schema carries only what loadPluginFromMarketplaceEntry
  * reads (name, source, version, strict) plus description for discoverability.
  *
@@ -1175,7 +1175,7 @@ export const PluginSourceSchema = lazySchema(() =>
  * the same shape it would from any sparse marketplace.json entry.
  *
  * Keeping this narrow prevents PluginManifestSchema().partial() from expanding
- * inline in settingsTypes.generated.ts â€” that expansion is ~870 lines per
+ * inline in settingsTypes.generated.ts â€?that expansion is ~870 lines per
  * occurrence, and MarketplaceSource appears three times in the settings schema
  * (extraKnownMarketplaces, strictKnownMarketplaces, blockedMarketplaces).
  */
@@ -1191,7 +1191,7 @@ const SettingsMarketplacePluginSchema = lazySchema(() =>
         })
         .describe('Plugin name as it appears in the target repository'),
       source: PluginSourceSchema().describe(
-        'Where to fetch the plugin from. Must be a remote source â€” relative ' +
+        'Where to fetch the plugin from. Must be a remote source â€?relative ' +
           'paths have no marketplace repository to resolve against.',
       ),
       description: z.string().optional(),
@@ -1225,10 +1225,9 @@ export function isLocalPluginSource(source: PluginSource): source is string {
 /**
  * Whether a marketplace source points at a user-controlled local filesystem path.
  *
- * For local sources (`file`/`directory`), `installLocation` IS the user's path â€”
- * it lives outside the plugins cache dir and marketplace operations on it are
+ * For local sources (`file`/`directory`), `installLocation` IS the user's path â€? * it lives outside the plugins cache dir and marketplace operations on it are
  * read-only. For remote sources (`github`/`git`/`url`/`npm`), `installLocation`
- * is a cache-dir entry managed by Claude Code and subject to rm/re-clone.
+ * is a cache-dir entry managed by xccodex and subject to rm/re-clone.
  *
  * Contrast with isLocalPluginSource, which operates on PluginSource (the
  * per-plugin source inside a marketplace entry) and checks for `./` prefix.
@@ -1246,7 +1245,7 @@ export function isLocalMarketplaceSource(
  * When strict=false: Plugin.json is optional, marketplace provides full manifest
  *
  * Unknown fields are silently stripped (zod default) rather than rejected.
- * Marketplace entries are validated as an array â€” if one entry rejected
+ * Marketplace entries are validated as an array â€?if one entry rejected
  * unknown keys, the whole marketplace.json would fail to parse and ALL
  * plugins from that marketplace would become unavailable. Stripping keeps
  * the blast radius to zero for custom/future fields.
@@ -1352,13 +1351,13 @@ const DEP_REF_REGEX =
  * Schema for entries in a plugin's `dependencies` array.
  *
  * Accepts three forms, all normalized to a plain "name" or "name@mkt" string
- * by the transform â€” downstream code (qualifyDependency, resolveDependencyClosure,
+ * by the transform â€?downstream code (qualifyDependency, resolveDependencyClosure,
  * verifyAndDemote) never sees versions or objects:
  *
- *   "plugin"                â†’ bare, resolved against declaring plugin's marketplace
- *   "plugin@marketplace"    â†’ qualified
- *   "plugin@mkt@^1.2"       â†’ trailing @^version silently stripped (forwards-compat)
- *   {name, marketplace?, â€¦} â†’ object form, version etc. stripped (forwards-compat)
+ *   "plugin"                â†?bare, resolved against declaring plugin's marketplace
+ *   "plugin@marketplace"    â†?qualified
+ *   "plugin@mkt@^1.2"       â†?trailing @^version silently stripped (forwards-compat)
+ *   {name, marketplace?, â€¦} â†?object form, version etc. stripped (forwards-compat)
  *
  * The latter two are permitted-but-ignored so future clients adding version
  * constraints don't cause old clients to fail schema validation and reject
@@ -1465,10 +1464,10 @@ export const InstalledPluginSchema = lazySchema(() =>
  * Schema for the installed_plugins.json file (V1 format)
  *
  * Contains a version number and maps plugin IDs to their installation metadata.
- * Maintained automatically by Claude Code, not edited by users.
+ * Maintained automatically by xccodex, not edited by users.
  *
  * The version field tracks schema changes. When the version doesn't match
- * the current schema version, Claude Code will update the file on next startup.
+ * the current schema version, xccodex will update the file on next startup.
  *
  * Example file:
  * {

@@ -4,17 +4,17 @@ import { env } from '../env.js'
 export const COMPUTER_USE_MCP_SERVER_NAME = 'computer-use'
 
 /**
- * Sentinel bundle ID for the frontmost gate. Claude Code is a terminal â€” it has
+ * Sentinel bundle ID for the frontmost gate. xccodex is a terminal â€?it has
  * no window. This never matches a real `NSWorkspace.frontmostApplication`, so
  * the package's "host is frontmost" branch (mouse click-through exemption,
  * keyboard safety-net) is dead code for us. `prepareForAction`'s "exempt our
- * own window" is likewise a no-op â€” there is no window to exempt.
+ * own window" is likewise a no-op â€?there is no window to exempt.
  */
 export const CLI_HOST_BUNDLE_ID = 'com.anthropic.claude-code.cli-no-window'
 
 /**
- * Fallback `env.terminal` â†’ bundleId map for when `__CFBundleIdentifier` is
- * unset. Covers the macOS terminals we can distinguish â€” Linux entries
+ * Fallback `env.terminal` â†?bundleId map for when `__CFBundleIdentifier` is
+ * unset. Covers the macOS terminals we can distinguish â€?Linux entries
  * (konsole, gnome-terminal, xterm) are deliberately absent since
  * `createCliExecutor` is darwin-guarded.
  */
@@ -31,11 +31,11 @@ const TERMINAL_BUNDLE_ID_FALLBACK: Readonly<Record<string, string>> = {
  * Bundle ID of the terminal emulator we're running inside, so `prepareDisplay`
  * can exempt it from hiding and `captureExcluding` can keep it out of
  * screenshots. Returns null when undetectable (ssh, cleared env, unknown
- * terminal) â€” caller must handle the null case.
+ * terminal) â€?caller must handle the null case.
  *
  * `__CFBundleIdentifier` is set by LaunchServices when a .app bundle spawns a
  * process and is inherited by children. It's the exact bundleId, no lookup
- * needed â€” handles terminals the fallback table doesn't know about. Under
+ * needed â€?handles terminals the fallback table doesn't know about. Under
  * tmux/screen it reflects the terminal that started the SERVER, which may
  * differ from the attached client. That's harmless here: we exempt A
  * terminal window, and the screenshots exclude it regardless.
@@ -47,7 +47,7 @@ export function getTerminalBundleId(): string | null {
 }
 
 /**
- * Static capabilities for macOS CLI. `hostBundleId` is not here â€” it's added
+ * Static capabilities for macOS CLI. `hostBundleId` is not here â€?it's added
  * by `executor.ts` per `ComputerExecutor.capabilities`. `buildComputerUseTools`
  * takes this shape (no `hostBundleId`, no `teachMode`).
  */

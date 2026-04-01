@@ -255,7 +255,7 @@ export function getParentCacheSuppressReason(
     : null
 }
 
-const SUGGESTION_PROMPT = `[SUGGESTION MODE: Suggest what the user might naturally type next into Claude Code.]
+const SUGGESTION_PROMPT = `[SUGGESTION MODE: Suggest what the user might naturally type next into xccodex.]
 
 FIRST: Look at the user's recent messages and original request.
 
@@ -264,12 +264,12 @@ Your job is to predict what THEY would type - not what you think they should do.
 THE TEST: Would they think "I was just about to type that"?
 
 EXAMPLES:
-User asked "fix the bug and run tests", bug is fixed â†’ "run the tests"
-After code written â†’ "try it out"
-Claude offers options â†’ suggest the one the user would likely pick, based on conversation
-Claude asks to continue â†’ "yes" or "go ahead"
-Task complete, obvious follow-up â†’ "commit this" or "push it"
-After error or misunderstanding â†’ silence (let them assess/correct)
+User asked "fix the bug and run tests", bug is fixed â†?"run the tests"
+After code written â†?"try it out"
+Claude offers options â†?suggest the one the user would likely pick, based on conversation
+Claude asks to continue â†?"yes" or "go ahead"
+Task complete, obvious follow-up â†?"commit this" or "push it"
+After error or misunderstanding â†?silence (let them assess/correct)
 
 Be specific: "run the tests" beats "continue".
 
@@ -308,10 +308,10 @@ export async function generateSuggestion(
   // DO NOT override any API parameter that differs from the parent request.
   // The fork piggybacks on the main thread's prompt cache by sending identical
   // cache-key params. The billing cache key includes more than just
-  // system/tools/model/messages/thinking â€” empirically, setting effortValue
+  // system/tools/model/messages/thinking â€?empirically, setting effortValue
   // or maxOutputTokens on the fork (even via output_config or getAppState)
   // busts cache. PR #18143 tried effort:'low' and caused a 45x spike in cache
-  // writes (92.7% â†’ 61% hit rate). The only safe overrides are:
+  // writes (92.7% â†?61% hit rate). The only safe overrides are:
   //   - abortController (not sent to API)
   //   - skipTranscript (client-side only)
   //   - skipCacheWrite (controls cache_control markers, not the cache key)
@@ -329,7 +329,7 @@ export async function generateSuggestion(
     skipCacheWrite: true,
   })
 
-  // Check ALL messages - model may loop (try tool â†’ denied â†’ text in next message)
+  // Check ALL messages - model may loop (try tool â†?denied â†?text in next message)
   // Also extract the requestId from the first assistant message for RL dataset joins
   const firstAssistantMsg = result.messages.find(m => m.type === 'assistant')
   const generationRequestId =
@@ -380,7 +380,7 @@ export function shouldFilterSuggestion(
     ],
     [
       'meta_wrapped',
-      // Model wraps meta-reasoning in parens/brackets: (silence â€” ...), [no suggestion]
+      // Model wraps meta-reasoning in parens/brackets: (silence â€?...), [no suggestion]
       () => /^\(.*\)$|^\[.*\]$/.test(suggestion),
     ],
     [
@@ -397,7 +397,7 @@ export function shouldFilterSuggestion(
       'too_few_words',
       () => {
         if (wordCount >= 2) return false
-        // Allow slash commands â€” these are valid user commands
+        // Allow slash commands â€?these are valid user commands
         if (suggestion.startsWith('/')) return false
         // Allow common single-word inputs that are valid user commands
         const ALLOWED_SINGLE_WORDS = new Set([

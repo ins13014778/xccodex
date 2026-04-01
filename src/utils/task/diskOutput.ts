@@ -16,7 +16,7 @@ import { getProjectTempDir } from '../permissions/filesystem.js'
 
 // SECURITY: O_NOFOLLOW prevents following symlinks when opening task output files.
 // Without this, an attacker in the sandbox could create symlinks in the tasks directory
-// pointing to arbitrary files, causing Claude Code on the host to write to those files.
+// pointing to arbitrary files, causing xccodex on the host to write to those files.
 // O_NOFOLLOW is not available on Windows, but the sandbox attack vector is Unix-only.
 const O_NOFOLLOW = fsConstants.O_NOFOLLOW ?? 0
 
@@ -36,14 +36,14 @@ export const MAX_TASK_OUTPUT_BYTES_DISPLAY = '5GB'
  *
  * The session ID is included so concurrent sessions in the same project don't
  * clobber each other's output files. Startup cleanup in one session previously
- * unlinked in-flight output files from other sessions â€” the writing process's fd
+ * unlinked in-flight output files from other sessions â€?the writing process's fd
  * keeps the inode alive but reads via path fail ENOENT, and getStdout() returned
  * empty string (inc-4586 / boris-20260309-060423).
  *
  * The session ID is captured at FIRST CALL, not re-read on every invocation.
  * /clear calls regenerateSessionId(), which would otherwise cause
  * ensureOutputDir() to create a new-session path while existing TaskOutput
- * instances still hold old-session paths â€” open() would ENOENT. Background
+ * instances still hold old-session paths â€?open() would ENOENT. Background
  * bash tasks surviving /clear need their output files to stay reachable.
  */
 let _taskOutputDir: string | undefined
@@ -54,7 +54,7 @@ export function getTaskOutputDir(): string {
   return _taskOutputDir
 }
 
-/** Test helper â€” clears the memoized dir. */
+/** Test helper â€?clears the memoized dir. */
 export function _resetTaskOutputDirForTest(): void {
   _taskOutputDir = undefined
 }
@@ -76,8 +76,8 @@ export function getTaskOutputPath(taskId: string): string {
 // Tracks fire-and-forget promises (initTaskOutput, initTaskOutputAsSymlink,
 // evictTaskOutput, #drain) so tests can drain before teardown. Prevents the
 // async-ENOENT-after-teardown flake class (#24957, #25065): a voided async
-// resumes after preload's afterEach nuked the temp dir â†’ ENOENT â†’ unhandled
-// rejection â†’ flaky test failure. allSettled so a rejection doesn't short-
+// resumes after preload's afterEach nuked the temp dir â†?ENOENT â†?unhandled
+// rejection â†?flaky test failure. allSettled so a rejection doesn't short-
 // circuit the drain and leave other ops racing the rmSync.
 const _pendingOps = new Set<Promise<unknown>>()
 function track<T>(p: Promise<T>): Promise<T> {
@@ -112,7 +112,7 @@ export class DiskTaskOutput {
       return
     }
     // content.length (UTF-16 code units) undercounts UTF-8 bytes by at most ~3Ã—.
-    // Acceptable for a coarse disk-fill guard â€” avoids re-scanning every chunk.
+    // Acceptable for a coarse disk-fill guard â€?avoids re-scanning every chunk.
     this.#bytesWritten += content.length
     if (this.#bytesWritten > MAX_TASK_OUTPUT_BYTES) {
       this.#capped = true
@@ -210,7 +210,7 @@ export class DiskTaskOutput {
     } catch (e) {
       // Transient fs errors (EMFILE on busy CI, EPERM on Windows pending-
       // delete) previously rode up through `void this.#drain()` as an
-      // unhandled rejection while the flush promise resolved anyway â€” callers
+      // unhandled rejection while the flush promise resolved anyway â€?callers
       // saw an empty file with no error. Retry once for the transient case
       // (queue is intact if open() failed), then log and give up.
       logError(e)
@@ -233,13 +233,13 @@ export class DiskTaskOutput {
 const outputs = new Map<string, DiskTaskOutput>()
 
 /**
- * Test helper â€” cancel pending writes, await in-flight ops, clear the map.
+ * Test helper â€?cancel pending writes, await in-flight ops, clear the map.
  * backgroundShells.test.ts and other task tests spawn real shells that
  * write through this module without afterEach cleanup; their entries
  * leak into diskOutput.test.ts on the same shard.
  *
- * Awaits all tracked promises until the set stabilizes â€” a settling promise
- * may spawn another (initTaskOutputAsSymlink's catch â†’ initTaskOutput).
+ * Awaits all tracked promises until the set stabilizes â€?a settling promise
+ * may spawn another (initTaskOutputAsSymlink's catch â†?initTaskOutput).
  * Call this in afterEach BEFORE rmSync to avoid async-ENOENT-after-teardown.
  */
 export async function _clearOutputsForTest(): Promise<void> {
@@ -299,7 +299,7 @@ export function evictTaskOutput(taskId: string): Promise<void> {
 
 /**
  * Get delta (new content) since last read.
- * Reads only from the byte offset, up to maxBytes â€” never loads the full file.
+ * Reads only from the byte offset, up to maxBytes â€?never loads the full file.
  */
 export async function getTaskOutputDelta(
   taskId: string,
@@ -404,7 +404,7 @@ export function initTaskOutput(taskId: string): Promise<string> {
       const outputPath = getTaskOutputPath(taskId)
       // SECURITY: O_NOFOLLOW prevents symlink-following attacks from the sandbox.
       // O_EXCL ensures we create a new file and fail if something already exists at this path.
-      // On Windows, use string flags â€” numeric O_EXCL can produce EINVAL through libuv.
+      // On Windows, use string flags â€?numeric O_EXCL can produce EINVAL through libuv.
       const fh = await open(
         outputPath,
         process.platform === 'win32'

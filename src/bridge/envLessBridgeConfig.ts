@@ -5,7 +5,7 @@ import { lt } from '../utils/semver.js'
 import { isEnvLessBridgeEnabled } from './bridgeEnabled.js'
 
 export type EnvLessBridgeConfig = {
-  // withRetry â€” init-phase backoff (createSession, POST /bridge, recovery /bridge)
+  // withRetry â€?init-phase backoff (createSession, POST /bridge, recovery /bridge)
   init_retry_max_attempts: number
   init_retry_base_delay_ms: number
   init_retry_jitter_fraction: number
@@ -14,21 +14,21 @@ export type EnvLessBridgeConfig = {
   http_timeout_ms: number
   // BoundedUUIDSet ring size (echo + re-delivery dedup)
   uuid_dedup_buffer_size: number
-  // CCRClient worker heartbeat cadence. Server TTL is 60s â€” 20s gives 3Ã— margin.
+  // CCRClient worker heartbeat cadence. Server TTL is 60s â€?20s gives 3Ã— margin.
   heartbeat_interval_ms: number
-  // Â±fraction of interval â€” per-beat jitter to spread fleet load.
+  // Â±fraction of interval â€?per-beat jitter to spread fleet load.
   heartbeat_jitter_fraction: number
   // Fire proactive JWT refresh this long before expires_in. Larger buffer =
-  // more frequent refresh (refresh cadence â‰ˆ expires_in - buffer).
+  // more frequent refresh (refresh cadence â‰?expires_in - buffer).
   token_refresh_buffer_ms: number
   // Archive POST timeout in teardown(). Distinct from http_timeout_ms because
-  // gracefulShutdown races runCleanupFunctions() against a 2s cap â€” a 10s
+  // gracefulShutdown races runCleanupFunctions() against a 2s cap â€?a 10s
   // axios timeout on a slow/stalled archive burns the whole budget on a
   // request that forceExit will kill anyway.
   teardown_archive_timeout_ms: number
   // Deadline for onConnect after transport.connect(). If neither onConnect
   // nor onClose fires before this, emit tengu_bridge_repl_connect_timeout
-  // â€” the only telemetry for the ~1% of sessions that emit `started` then
+  // â€?the only telemetry for the ~1% of sessions that emit `started` then
   // go silent (no error, no event, just nothing).
   connect_timeout_ms: number
   // Semver floor for the env-less bridge path. Separate from the v1
@@ -36,7 +36,7 @@ export type EnvLessBridgeConfig = {
   // without blocking v1 (env-based) clients, and vice versa.
   min_version: string
   // When true, tell users their claude.ai app may be too old to see v2
-  // sessions â€” lets us roll the v2 bridge before the app ships the new
+  // sessions â€?lets us roll the v2 bridge before the app ships the new
   // session-list query.
   should_show_app_upgrade_message: boolean
 }
@@ -58,7 +58,7 @@ export const DEFAULT_ENV_LESS_BRIDGE_CONFIG: EnvLessBridgeConfig = {
 }
 
 // Floors reject the whole object on violation (fall back to DEFAULT) rather
-// than partially trusting â€” same defense-in-depth as pollConfig.ts.
+// than partially trusting â€?same defense-in-depth as pollConfig.ts.
 const envLessBridgeConfigSchema = lazySchema(() =>
   z.object({
     init_retry_max_attempts: z.number().int().min(1).max(10).default(3),
@@ -67,7 +67,7 @@ const envLessBridgeConfigSchema = lazySchema(() =>
     init_retry_max_delay_ms: z.number().int().min(500).default(4000),
     http_timeout_ms: z.number().int().min(2000).default(10_000),
     uuid_dedup_buffer_size: z.number().int().min(100).max(50_000).default(2000),
-    // Server TTL is 60s. Floor 5s prevents thrash; cap 30s keeps â‰¥2Ã— margin.
+    // Server TTL is 60s. Floor 5s prevents thrash; cap 30s keeps â‰?Ã— margin.
     heartbeat_interval_ms: z
       .number()
       .int()
@@ -80,16 +80,16 @@ const envLessBridgeConfigSchema = lazySchema(() =>
     // Floor 30s prevents tight-looping. Cap 30min rejects buffer-vs-delay
     // semantic inversion: ops entering expires_in-5min (the *delay until
     // refresh*) instead of 5min (the *buffer before expiry*) yields
-    // delayMs = expires_in - buffer â‰ˆ 5min instead of â‰ˆ4h. Both are positive
+    // delayMs = expires_in - buffer â‰?5min instead of â‰?h. Both are positive
     // durations so .min() alone can't distinguish; .max() catches the
-    // inverted value since buffer â‰¥ 30min is nonsensical for a multi-hour JWT.
+    // inverted value since buffer â‰?30min is nonsensical for a multi-hour JWT.
     token_refresh_buffer_ms: z
       .number()
       .int()
       .min(30_000)
       .max(1_800_000)
       .default(300_000),
-    // Cap 2000 keeps this under gracefulShutdown's 2s cleanup race â€” a higher
+    // Cap 2000 keeps this under gracefulShutdown's 2s cleanup race â€?a higher
     // timeout just lies to axios since forceExit kills the socket regardless.
     teardown_archive_timeout_ms: z
       .number()
@@ -118,11 +118,11 @@ const envLessBridgeConfigSchema = lazySchema(() =>
 
 /**
  * Fetch the env-less bridge timing config from GrowthBook. Read once per
- * initEnvLessBridgeCore call â€” config is fixed for the lifetime of a bridge
+ * initEnvLessBridgeCore call â€?config is fixed for the lifetime of a bridge
  * session.
  *
  * Uses the blocking getter (not _CACHED_MAY_BE_STALE) because /remote-control
- * runs well after GrowthBook init â€” initializeGrowthBook() resolves instantly,
+ * runs well after GrowthBook init â€?initializeGrowthBook() resolves instantly,
  * so there's no startup penalty, and we get the fresh in-memory remoteEval
  * value instead of the stale-on-first-read disk cache. The _DEPRECATED suffix
  * warns against startup-path usage, which this isn't.
@@ -140,14 +140,14 @@ export async function getEnvLessBridgeConfig(): Promise<EnvLessBridgeConfig> {
  * Returns an error message if the current CLI version is below the minimum
  * required for the env-less (v2) bridge path, or null if the version is fine.
  *
- * v2 analogue of checkBridgeMinVersion() â€” reads from tengu_bridge_repl_v2_config
+ * v2 analogue of checkBridgeMinVersion() â€?reads from tengu_bridge_repl_v2_config
  * instead of tengu_bridge_min_version so the two implementations can enforce
  * independent floors.
  */
 export async function checkEnvLessBridgeMinVersion(): Promise<string | null> {
   const cfg = await getEnvLessBridgeConfig()
   if (cfg.min_version && lt(MACRO.VERSION, cfg.min_version)) {
-    return `Your version of Claude Code (${MACRO.VERSION}) is too old for Remote Control.\nVersion ${cfg.min_version} or higher is required. Run \`claude update\` to update.`
+    return `Your version of xccodex (${MACRO.VERSION}) is too old for Remote Control.\nVersion ${cfg.min_version} or higher is required. Run \`claude update\` to update.`
   }
   return null
 }
@@ -155,7 +155,7 @@ export async function checkEnvLessBridgeMinVersion(): Promise<string | null> {
 /**
  * Whether to nudge users toward upgrading their claude.ai app when a
  * Remote Control session starts. True only when the v2 bridge is active
- * AND the should_show_app_upgrade_message config bit is set â€” lets us
+ * AND the should_show_app_upgrade_message config bit is set â€?lets us
  * roll the v2 bridge before the app ships the new session-list query.
  */
 export async function shouldShowAppUpgradeMessage(): Promise<boolean> {

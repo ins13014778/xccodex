@@ -40,7 +40,7 @@ const FILE_STABILITY_POLL_INTERVAL_MS = 500
 /**
  * Time window in milliseconds to consider a file change as internal.
  * If a file change occurs within this window after markInternalWrite() is called,
- * it's assumed to be from Claude Code itself and won't trigger a notification.
+ * it's assumed to be from xccodex itself and won't trigger a notification.
  */
 const INTERNAL_WRITE_WINDOW_MS = 5000
 
@@ -147,7 +147,7 @@ export async function initialize(): Promise<void> {
 
 /**
  * Clean up file watcher. Returns a promise that resolves when chokidar's
- * close() settles â€” callers that need the watcher fully stopped before
+ * close() settles â€?callers that need the watcher fully stopped before
  * removing the watched directory (e.g. test teardown) must await this.
  * Fire-and-forget is still valid where timing doesn't matter.
  */
@@ -267,13 +267,13 @@ function handleChange(path: string): void {
   if (!source) return
 
   // If a deletion was pending for this path (delete-and-recreate pattern),
-  // cancel the deletion â€” we'll process this as a change instead.
+  // cancel the deletion â€?we'll process this as a change instead.
   const pendingTimer = pendingDeletions.get(path)
   if (pendingTimer) {
     clearTimeout(pendingTimer)
     pendingDeletions.delete(path)
     logForDebugging(
-      `Cancelled pending deletion of ${path} â€” file was recreated`,
+      `Cancelled pending deletion of ${path} â€?file was recreated`,
     )
   }
 
@@ -284,7 +284,7 @@ function handleChange(path: string): void {
 
   logForDebugging(`Detected change to ${path}`)
 
-  // Fire ConfigChange hook first â€” if blocked (exit code 2 or decision: 'block'),
+  // Fire ConfigChange hook first â€?if blocked (exit code 2 or decision: 'block'),
   // skip applying the change to the session
   void executeConfigChangeHooks(
     settingSourceToConfigChangeSource(source),
@@ -306,12 +306,12 @@ function handleAdd(path: string): void {
   const source = getSourceForPath(path)
   if (!source) return
 
-  // Cancel any pending deletion â€” the file is back
+  // Cancel any pending deletion â€?the file is back
   const pendingTimer = pendingDeletions.get(path)
   if (pendingTimer) {
     clearTimeout(pendingTimer)
     pendingDeletions.delete(path)
-    logForDebugging(`Cancelled pending deletion of ${path} â€” file was re-added`)
+    logForDebugging(`Cancelled pending deletion of ${path} â€?file was re-added`)
   }
 
   // Treat as a change (re-read settings)
@@ -337,7 +337,7 @@ function handleDelete(path: string): void {
     (p, src) => {
       pendingDeletions.delete(p)
 
-      // Fire ConfigChange hook first â€” if blocked, skip applying the deletion
+      // Fire ConfigChange hook first â€?if blocked, skip applying the deletion
       void executeConfigChangeHooks(
         settingSourceToConfigChangeSource(src),
         p,
@@ -424,7 +424,7 @@ function startMdmPoll(): void {
  * (file-watch at :289/340, MDM poll at :385) did not reset before iterating
  * listeners. That defense caused N-way thrashing when N listeners were
  * subscribed: each listener cleared the cache, re-read from disk (populating
- * it), then the next listener cleared it again â€” N full disk reloads per
+ * it), then the next listener cleared it again â€?N full disk reloads per
  * notification. Profile showed 5 loadSettingsFromDisk calls in 12ms when
  * remote managed settings resolved at startup.
  *
@@ -454,7 +454,7 @@ export function notifyChange(source: SettingSource): void {
  *
  * Closes the watcher and returns the close promise so preload's afterEach
  * can await it BEFORE nuking perTestSettingsDir. Without this, chokidar's
- * pending awaitWriteFinish poll fires on the deleted dir â†’ ENOENT (#25253).
+ * pending awaitWriteFinish poll fires on the deleted dir â†?ENOENT (#25253).
  */
 export function resetForTesting(overrides?: {
   stabilityThreshold?: number

@@ -12,7 +12,7 @@ import { asSystemPrompt, type SystemPrompt } from './systemPromptType.js'
 export { asSystemPrompt, type SystemPrompt } from './systemPromptType.js'
 
 // Dead code elimination: conditional import for proactive mode.
-// Same pattern as prompts.ts â€” lazy require to avoid pulling the module
+// Same pattern as prompts.ts â€?lazy require to avoid pulling the module
 // into non-proactive builds.
 /* eslint-disable @typescript-eslint/no-require-imports */
 const proactiveModule =
@@ -34,7 +34,7 @@ function isProactiveActive_SAFE_TO_CALL_ANYWHERE(): boolean {
  *      instructions on top of the autonomous agent prompt, like teammates do)
  *    - Otherwise: agent prompt REPLACES default
  * 3. Custom system prompt (if specified via --system-prompt)
- * 4. Default system prompt (the standard Claude Code prompt)
+ * 4. Default system prompt (the standard xccodex prompt)
  *
  * Plus appendSystemPrompt is always added at the end if specified (except when override is set).
  */
@@ -99,7 +99,7 @@ export function buildEffectiveSystemPrompt({
   // In proactive mode, agent instructions are appended to the default prompt
   // rather than replacing it. The proactive default prompt is already lean
   // (autonomous agent identity + memory + env + proactive section), and agents
-  // add domain-specific behavior on top â€” same pattern as teammates.
+  // add domain-specific behavior on top â€?same pattern as teammates.
   if (
     agentSystemPrompt &&
     (feature('PROACTIVE') || feature('KAIROS')) &&

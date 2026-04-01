@@ -2,7 +2,7 @@
  * Files API client for managing files
  *
  * This module provides functionality to download and upload files to Anthropic Public Files API.
- * Used by the Claude Code agent to download file attachments at session startup.
+ * Used by the xccodex agent to download file attachments at session startup.
  *
  * API Reference: https://docs.anthropic.com/en/api/files-content
  */
@@ -23,7 +23,7 @@ import {
 } from '../analytics/index.js'
 
 // Files API is currently in beta. oauth-2025-04-20 enables Bearer OAuth
-// on public-api routes (auth.py: "oauth_auth" not in beta_versions â†’ 404).
+// on public-api routes (auth.py: "oauth_auth" not in beta_versions â†?404).
 const FILES_API_BETA_HEADER = 'files-api-2025-04-14,oauth-2025-04-20'
 const ANTHROPIC_VERSION = '2023-06-01'
 

@@ -81,11 +81,11 @@ export function isResultSuccessful(
   }
 
   // Carve-out: API completed (message_delta set stop_reason) but yielded
-  // no assistant content â€” last(messages) is still this turn's prompt.
+  // no assistant content â€?last(messages) is still this turn's prompt.
   // claude.ts:2026 recognizes end_turn-with-zero-content-blocks as
   // legitimate and passes through without throwing. Observed on
   // task_notification drain turns: model returns stop_reason=end_turn,
-  // outputTokens=4, textContentLength=0 â€” it saw the subagent result
+  // outputTokens=4, textContentLength=0 â€?it saw the subagent result
   // and decided nothing needed saying. Without this, QueryEngine emits
   // error_during_execution with errors[] = the entire process's
   // accumulated logError() buffer. Covers both string-content and
@@ -159,7 +159,7 @@ export function* normalizeMessage(message: Message): Generator<SDKMessage> {
         message.data.type === 'powershell_progress'
       ) {
         // Filter bash progress to send only one per minute
-        // Only emit for Claude Code Remote for now
+        // Only emit for xccodex Remote for now
         if (
           !isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) &&
           !process.env.CLAUDE_CODE_CONTAINER_ID
@@ -422,7 +422,7 @@ export function extractReadFilesFromMessages(
           if (
             readFilePath &&
             typeof content.content === 'string' &&
-            // Dedup stubs contain no file content â€” the earlier real Read
+            // Dedup stubs contain no file content â€?the earlier real Read
             // already cached it. Chronological last-wins would otherwise
             // overwrite the real entry with stub text.
             !content.content.startsWith(FILE_UNCHANGED_STUB)
@@ -465,7 +465,7 @@ export function extractReadFilesFromMessages(
             })
           }
 
-          // Handle Edit tool results â€” post-edit content isn't in the
+          // Handle Edit tool results â€?post-edit content isn't in the
           // tool_use input (only old_string/new_string) nor fully in the
           // result (only a snippet). Read from disk now, using actual mtime
           // so getChangedFiles's mtime check passes on the next turn.
@@ -489,7 +489,7 @@ export function extractReadFilesFromMessages(
               if (!isFsInaccessible(e)) {
                 throw e
               }
-              // File deleted or inaccessible since the Edit â€” skip
+              // File deleted or inaccessible since the Edit â€?skip
             }
           }
         }
@@ -537,7 +537,7 @@ const STRIPPED_COMMANDS = new Set(['sudo'])
 
 /**
  * Extract the actual CLI name from a bash command string, skipping
- * env var assignments (e.g. `FOO=bar vercel` â†’ `vercel`) and prefixes
+ * env var assignments (e.g. `FOO=bar vercel` â†?`vercel`) and prefixes
  * in STRIPPED_COMMANDS.
  */
 function extractCliName(command: string | undefined): string | undefined {

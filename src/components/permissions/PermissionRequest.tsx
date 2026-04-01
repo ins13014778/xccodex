@@ -89,12 +89,11 @@ export type PermissionRequestProps<Input extends AnyObject = AnyObject> = {
   workerBadge: WorkerBadgeProps | undefined;
   /**
    * Register JSX to render in a sticky footer below the scrollable area.
-   * Fullscreen mode only (non-fullscreen has no sticky area â€” terminal
+   * Fullscreen mode only (non-fullscreen has no sticky area â€?terminal
    * scrollback moves everything together). Call with null to clear.
    *
    * Used by ExitPlanModePermissionRequest to keep response options visible
-   * while the user scrolls through a long plan. The callback is stable â€”
-   * JSX passed should use refs for callbacks that close over component state
+   * while the user scrolls through a long plan. The callback is stable â€?   * JSX passed should use refs for callbacks that close over component state
    * to avoid stale closures (React reconciles the JSX, preserving Select's
    * internal focus/input state).
    */
@@ -128,16 +127,16 @@ export type ToolUseConfirm<Input extends AnyObject = AnyObject> = {
 function getNotificationMessage(toolUseConfirm: ToolUseConfirm): string {
   const toolName = toolUseConfirm.tool.userFacingName(toolUseConfirm.input as never);
   if (toolUseConfirm.tool === ExitPlanModeV2Tool) {
-    return 'Claude Code needs your approval for the plan';
+    return 'xccodex needs your approval for the plan';
   }
   if (toolUseConfirm.tool === EnterPlanModeTool) {
-    return 'Claude Code wants to enter plan mode';
+    return 'xccodex wants to enter plan mode';
   }
   if (feature('REVIEW_ARTIFACT') && toolUseConfirm.tool === ReviewArtifactTool) {
     return 'Claude needs your approval for a review artifact';
   }
   if (!toolName || toolName.trim() === '') {
-    return 'Claude Code needs your attention';
+    return 'xccodex needs your attention';
   }
   return `Claude needs your permission to use ${toolName}`;
 }

@@ -1,5 +1,5 @@
 /**
- * Perfetto Tracing for Claude Code (Ant-only)
+ * Perfetto Tracing for xccodex (Ant-only)
  *
  * This module generates traces in the Chrome Trace Event format that can be
  * viewed in ui.perfetto.dev or Chrome's chrome://tracing.
@@ -16,7 +16,7 @@
  * 1. Enable via CLAUDE_CODE_PERFETTO_TRACE=1 or CLAUDE_CODE_PERFETTO_TRACE=<path>
  * 2. Optionally set CLAUDE_CODE_PERFETTO_WRITE_INTERVAL_S=<positive integer> to write the
  *    trace file periodically (default: write only on exit).
- * 3. Run Claude Code normally
+ * 3. Run xccodex normally
  * 4. Trace file is written to ~/.claude/traces/trace-<session-id>.json
  *    or to the specified path
  * 5. Open in ui.perfetto.dev to visualize
@@ -93,14 +93,14 @@ type PendingSpan = {
 // Global state for the Perfetto tracer
 let isEnabled = false
 let tracePath: string | null = null
-// Metadata events (ph: 'M' â€” process/thread names, parent links) are kept
-// separate so they survive eviction â€” Perfetto UI needs them to label
+// Metadata events (ph: 'M' â€?process/thread names, parent links) are kept
+// separate so they survive eviction â€?Perfetto UI needs them to label
 // tracks. Bounded by agent count (~3 events per agent).
 const metadataEvents: TraceEvent[] = []
 const events: TraceEvent[] = []
 // events[] cap. Cron-driven sessions run for days; 22 push sites Ã— many
 // turns would otherwise grow unboundedly (periodicWrite flushes to disk but
-// does not truncate â€” it writes the full snapshot). At ~300B/event this is
+// does not truncate â€?it writes the full snapshot). At ~300B/event this is
 // ~30MB, enough trace history for any debugging session. Eviction drops the
 // oldest half when hit, amortized O(1).
 const MAX_EVENTS = 100_000
@@ -226,7 +226,7 @@ function buildTraceDocument(): string {
 /**
  * Drop the oldest half of events[] when over MAX_EVENTS. Called from the
  * stale-span cleanup interval (60s). The half-batch splice keeps this
- * amortized O(1) â€” we don't pay splice cost per-push. A synthetic marker
+ * amortized O(1) â€?we don't pay splice cost per-push. A synthetic marker
  * is inserted so the gap is visible in ui.perfetto.dev.
  */
 function evictOldestEvents(): void {
@@ -479,7 +479,7 @@ export function endLLMRequestPerfettoSpan(
     error?: string
     /** Time spent in pre-request setup (client creation, retries) before the successful attempt */
     requestSetupMs?: number
-    /** Timestamps (Date.now()) of each attempt start â€” used to emit retry sub-spans */
+    /** Timestamps (Date.now()) of each attempt start â€?used to emit retry sub-spans */
     attemptStartTimes?: number[]
   },
 ): void {
@@ -984,7 +984,7 @@ function closeOpenSpans(): void {
 
 /**
  * Write the full trace to disk.  Errors are logged but swallowed so that a
- * transient I/O problem does not crash the session â€” the next periodic tick
+ * transient I/O problem does not crash the session â€?the next periodic tick
  * (or the final exit write) will retry with a complete snapshot.
  */
 async function periodicWrite(): Promise<void> {
@@ -1006,7 +1006,7 @@ async function periodicWrite(): Promise<void> {
 
 /**
  * Final async write: close open spans and write the complete trace.
- * Idempotent â€” sets `traceWritten` on success so subsequent calls are no-ops.
+ * Idempotent â€?sets `traceWritten` on success so subsequent calls are no-ops.
  */
 async function writePerfettoTrace(): Promise<void> {
   if (!isEnabled || !tracePath || traceWritten) {

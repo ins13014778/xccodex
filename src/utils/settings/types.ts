@@ -63,7 +63,7 @@ export const PermissionsSchema = lazySchema(() =>
             : EXTERNAL_PERMISSION_MODES,
         )
         .optional()
-        .describe('Default permission mode when Claude Code needs access'),
+        .describe('Default permission mode when xccodex needs access'),
       disableBypassPermissionsMode: z
         .enum(['disable'])
         .optional()
@@ -214,14 +214,14 @@ export const DeniedMcpServerEntrySchema = lazySchema(() =>
  * This schema defines the structure of user settings files (.claude/settings.json).
  * We support backward-compatible changes! Here's how:
  *
- * âœ… ALLOWED CHANGES:
+ * âœ?ALLOWED CHANGES:
  * - Adding new optional fields (always use .optional())
  * - Adding new enum values (keeping existing ones)
  * - Adding new properties to objects
  * - Making validation more permissive
  * - Using union types for gradual migration (e.g., z.union([oldType, newType]))
  *
- * âŒ BREAKING CHANGES TO AVOID:
+ * â?BREAKING CHANGES TO AVOID:
  * - Removing fields (mark as deprecated instead)
  * - Removing enum values
  * - Making optional fields required
@@ -258,7 +258,7 @@ export const SettingsSchema = lazySchema(() =>
       $schema: z
         .literal(CLAUDE_CODE_SETTINGS_SCHEMA_URL)
         .optional()
-        .describe('JSON Schema reference for Claude Code settings'),
+        .describe('JSON Schema reference for xccodex settings'),
       apiKeyHelper: z
         .string()
         .optional()
@@ -280,7 +280,7 @@ export const SettingsSchema = lazySchema(() =>
       // Gated so the SDK generator (which runs without CLAUDE_CODE_ENABLE_XAA)
       // doesn't surface this in GlobalClaudeSettings. Read via getXaaIdpSettings().
       // .passthrough() on the outer object keeps an existing settings.json key
-      // alive across env-var-off sessions â€” it's just not schema-validated then.
+      // alive across env-var-off sessions â€?it's just not schema-validated then.
       ...(isEnvTruthy(process.env.CLAUDE_CODE_ENABLE_XAA)
         ? {
             xaaIdp: z
@@ -291,7 +291,7 @@ export const SettingsSchema = lazySchema(() =>
                   .describe('IdP issuer URL for OIDC discovery'),
                 clientId: z
                   .string()
-                  .describe("Claude Code's client_id registered at the IdP"),
+                  .describe("xccodex's client_id registered at the IdP"),
                 callbackPort: z
                   .number()
                   .int()
@@ -332,7 +332,7 @@ export const SettingsSchema = lazySchema(() =>
         ),
       env: EnvironmentVariablesSchema()
         .optional()
-        .describe('Environment variables to set for Claude Code sessions'),
+        .describe('Environment variables to set for xccodex sessions'),
       // Attribution for commits and PRs
       attribution: z
         .object({
@@ -354,7 +354,7 @@ export const SettingsSchema = lazySchema(() =>
         .optional()
         .describe(
           'Customize attribution text for commits and PRs. ' +
-            'Each field defaults to the standard Claude Code attribution if not set.',
+            'Each field defaults to the standard xccodex attribution if not set.',
         ),
       includeCoAuthoredBy: z
         .boolean()
@@ -375,7 +375,7 @@ export const SettingsSchema = lazySchema(() =>
       model: z
         .string()
         .optional()
-        .describe('Override the default model used by Claude Code'),
+        .describe('Override the default model used by xccodex'),
       // Enterprise allowlist of models
       availableModels: z
         .array(z.string())
@@ -450,7 +450,7 @@ export const SettingsSchema = lazySchema(() =>
             .optional()
             .describe(
               'Directories to include when creating worktrees, via git sparse-checkout (cone mode). ' +
-                'Dramatically faster in large monorepos â€” only the listed paths are written to disk.',
+                'Dramatically faster in large monorepos â€?only the listed paths are written to disk.',
             ),
         })
         .optional()
@@ -520,7 +520,7 @@ export const SettingsSchema = lazySchema(() =>
           // Forwards-compat: drop unknown surface names so a future enum
           // value (e.g. 'commands') doesn't fail safeParse and null out the
           // ENTIRE managed-settings file (settings.ts:101). ["skills",
-          // "commands"] on an old client â†’ ["skills"] â†’ locks what it knows,
+          // "commands"] on an old client â†?["skills"] â†?locks what it knows,
           // ignores what it doesn't. Degrades to less-locked, never to
           // everything-unlocked.
           v =>
@@ -533,7 +533,7 @@ export const SettingsSchema = lazySchema(() =>
         )
         .optional()
         // Non-array invalid values ("skills" string, {object}) pass through
-        // the preprocess unchanged and would fail the union â†’ null the whole
+        // the preprocess unchanged and would fail the union â†?null the whole
         // managed-settings file. .catch drops the field to undefined instead.
         // Degrades to unlocked-for-this-field, never to everything-broken.
         // Doctor flags the raw value.
@@ -543,7 +543,7 @@ export const SettingsSchema = lazySchema(() =>
             'Array form locks specific surfaces (e.g. ["skills", "hooks"]); `true` locks all four; `false` is an explicit no-op. ' +
             'Blocked: ~/.claude/{surface}/, .claude/{surface}/ (project), settings.json hooks, .mcp.json. ' +
             'NOT blocked: managed (policySettings) sources, plugin-provided customizations. ' +
-            'Composes with strictKnownMarketplaces for end-to-end admin control â€” plugins gated by ' +
+            'Composes with strictKnownMarketplaces for end-to-end admin control â€?plugins gated by ' +
             'marketplace allowlist, everything else blocked here.',
         ),
       // Status line for custom status line display
@@ -572,9 +572,8 @@ export const SettingsSchema = lazySchema(() =>
           // For settings sources, key must equal source.name. diffMarketplaces
           // looks up materialized state by dict key; addMarketplaceSource stores
           // under marketplace.name (= source.name for settings). A mismatch means
-          // the reconciler never converges â€” every session: key-lookup misses â†’
-          // 'missing' â†’ source-idempotency returns alreadyMaterialized but
-          // installed++ anyway â†’ pointless cache clears. For github/git/url the
+          // the reconciler never converges â€?every session: key-lookup misses â†?          // 'missing' â†?source-idempotency returns alreadyMaterialized but
+          // installed++ anyway â†?pointless cache clears. For github/git/url the
           // name comes from a fetched marketplace.json (mismatch is expected and
           // benign); for settings, both key and name are user-authored in the
           // same JSON object.
@@ -607,7 +606,7 @@ export const SettingsSchema = lazySchema(() =>
           'Enterprise strict list of allowed marketplace sources. When set in managed settings, ' +
             'ONLY these exact sources can be added as marketplaces. The check happens BEFORE ' +
             'downloading, so blocked sources never touch the filesystem. ' +
-            'Note: this is a policy gate only â€” it does NOT register marketplaces. ' +
+            'Note: this is a policy gate only â€?it does NOT register marketplaces. ' +
             'To pre-register allowed marketplaces for users, also set extraKnownMarketplaces.',
         ),
       // Enterprise blocklist of marketplace sources (policy settings only)
@@ -659,7 +658,7 @@ export const SettingsSchema = lazySchema(() =>
         .max(1)
         .optional()
         .describe(
-          'Probability (0â€“1) that the session quality survey appears when eligible. 0.05 is a reasonable starting point.',
+          'Probability (0â€?) that the session quality survey appears when eligible. 0.05 is a reasonable starting point.',
         ),
       spinnerTipsEnabled: z
         .boolean()
@@ -902,7 +901,7 @@ export const SettingsSchema = lazySchema(() =>
             'Set true to allow; users then select servers via --channels.',
         ),
       // Org-level channel plugin allowlist. When set, REPLACES the
-      // Anthropic ledger â€” admin owns the trust decision. Undefined means
+      // Anthropic ledger â€?admin owns the trust decision. Undefined means
       // fall back to the ledger. Plugin-only entry shape (same as the
       // ledger); server-kind entries still need the dev flag.
       allowedChannelPlugins: z
@@ -915,7 +914,7 @@ export const SettingsSchema = lazySchema(() =>
         .optional()
         .describe(
           'Teams/Enterprise allowlist of channel plugins. When set, ' +
-            'replaces the default Anthropic allowlist â€” admins decide which ' +
+            'replaces the default Anthropic allowlist â€?admins decide which ' +
             'plugins may push inbound messages. Undefined falls back to the default. ' +
             'Requires channelsEnabled: true.',
         ),

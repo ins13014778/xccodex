@@ -280,7 +280,7 @@ export function getExtraBodyParams(betaHeaders?: string[]): JsonObject {
       const parsed = safeParseJSON(extraBodyStr)
       // We expect an object with key-value pairs to spread into API parameters
       if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-        // Shallow clone â€” safeParseJSON is LRU-cached and returns the same
+        // Shallow clone â€?safeParseJSON is LRU-cached and returns the same
         // object reference for the same string. Mutating `result` below
         // would poison the cache, causing stale values to persist.
         result = { ...(parsed as JsonObject) }
@@ -383,15 +383,15 @@ export function getCacheControl({
  * GrowthBook config shape: { allowlist: string[] }
  * Patterns support trailing '*' for prefix matching.
  * Examples:
- * - { allowlist: ["repl_main_thread*", "sdk"] } â€” main thread + SDK only
- * - { allowlist: ["repl_main_thread*", "sdk", "agent:*"] } â€” also subagents
- * - { allowlist: ["*"] } â€” all sources
+ * - { allowlist: ["repl_main_thread*", "sdk"] } â€?main thread + SDK only
+ * - { allowlist: ["repl_main_thread*", "sdk", "agent:*"] } â€?also subagents
+ * - { allowlist: ["*"] } â€?all sources
  *
- * The allowlist is cached in STATE for session stability â€” prevents mixed
+ * The allowlist is cached in STATE for session stability â€?prevents mixed
  * TTLs when GrowthBook's disk cache updates mid-request.
  */
 function should1hCacheTTL(querySource?: QuerySource): boolean {
-  // 3P Bedrock users get 1h TTL when opted in via env var â€” they manage their own billing
+  // 3P Bedrock users get 1h TTL when opted in via env var â€?they manage their own billing
   // No GrowthBook gating needed since 3P users don't have GrowthBook configured
   if (
     getAPIProvider() === 'bedrock' &&
@@ -400,7 +400,7 @@ function should1hCacheTTL(querySource?: QuerySource): boolean {
     return true
   }
 
-  // Latch eligibility in bootstrap state for session stability â€” prevents
+  // Latch eligibility in bootstrap state for session stability â€?prevents
   // mid-session overage flips from changing the cache_control TTL, which
   // would bust the server-side prompt cache (~20K tokens per flip).
   let userEligible = getPromptCache1hEligible()
@@ -412,7 +412,7 @@ function should1hCacheTTL(querySource?: QuerySource): boolean {
   }
   if (!userEligible) return false
 
-  // Cache allowlist in bootstrap state for session stability â€” prevents mixed
+  // Cache allowlist in bootstrap state for session stability â€?prevents mixed
   // TTLs when GrowthBook's disk cache updates mid-request
   let allowlist = getPromptCache1hAllowlist()
   if (allowlist === null) {
@@ -465,7 +465,7 @@ function configureEffortParams(
   }
 }
 
-// output_config.task_budget â€” API-side token budget awareness for the model.
+// output_config.task_budget â€?API-side token budget awareness for the model.
 // Stainless SDK types don't yet include task_budget on BetaOutputConfig, so we
 // define the wire shape locally and cast. The API validates on receipt; see
 // api/api/schemas/messages/request/output_config.py:12-39 in the monorepo.
@@ -700,7 +700,7 @@ export type Options = {
   advisorModel?: string
   addNotification?: (notif: Notification) => void
   // API-side task budget (output_config.task_budget). Distinct from the
-  // tokenBudget.ts +500k auto-continue feature â€” this one is sent to the API
+  // tokenBudget.ts +500k auto-continue feature â€?this one is sent to the API
   // so the model can pace itself. `remaining` is computed by the caller
   // (query.ts decrements across the agentic loop).
   taskBudget?: { total: number; remaining?: number }
@@ -801,7 +801,7 @@ function shouldDeferLspTool(tool: Tool): boolean {
  * (~5min) so a hung fallback to a wedged backend surfaces a clean
  * APIConnectionTimeoutError instead of stalling past SIGKILL.
  *
- * Otherwise defaults to 300s â€” long enough for slow backends without
+ * Otherwise defaults to 300s â€?long enough for slow backends without
  * approaching the API's 10-minute non-streaming boundary.
  */
 function getNonstreamingFallbackTimeoutMs(): number {
@@ -872,7 +872,7 @@ export async function* executeNonStreamingRequest(
           },
         )
       } catch (err) {
-        // User aborts are not errors â€” re-throw immediately without logging
+        // User aborts are not errors â€?re-throw immediately without logging
         if (err instanceof APIUserAbortError) throw err
 
         // Instrumentation: record when the non-streaming request errors (including
@@ -1025,7 +1025,7 @@ async function* queryModel(
   StreamEvent | AssistantMessage | SystemAPIErrorMessage,
   void
 > {
-  // Check cheap conditions first â€” the off-switch await blocks on GrowthBook
+  // Check cheap conditions first â€?the off-switch await blocks on GrowthBook
   // init (~10ms). For non-Opus models (haiku, sonnet) this skips the await
   // entirely. Subscribers don't hit this path at all.
   if (
@@ -1125,7 +1125,7 @@ async function* queryModel(
     'query',
   )
 
-  // Precompute once â€” isDeferredTool does 2 GrowthBook lookups per call
+  // Precompute once â€?isDeferredTool does 2 GrowthBook lookups per call
   const deferredToolNames = new Set<string>()
   if (useToolSearch) {
     for (const t of tools) {
@@ -1207,7 +1207,7 @@ async function* queryModel(
   const useGlobalCacheFeature = shouldUseGlobalCacheScope()
   const willDefer = (t: Tool) =>
     useToolSearch && (deferredToolNames.has(t.name) || shouldDeferLspTool(t))
-  // MCP tools are per-user â†’ dynamic tool section â†’ can't globally cache.
+  // MCP tools are per-user â†?dynamic tool section â†?can't globally cache.
   // Only gate when an MCP tool will actually render (not defer_loading).
   const needsToolBasedCacheMarker =
     useGlobalCacheFeature &&
@@ -1274,7 +1274,7 @@ async function* queryModel(
   //   called from ~20 places (analytics, feedback, sharing, etc.), many of which
   //   don't have model context. Adding model to its signature would be a large refactor.
   // - This post-processing uses the model-aware isToolSearchEnabled() check
-  // - This handles mid-conversation model switching (e.g., Sonnet â†’ Haiku) where
+  // - This handles mid-conversation model switching (e.g., Sonnet â†?Haiku) where
   //   stale tool-search fields from the previous model would cause 400 errors
   //
   // Note: For assistant messages, normalizeMessagesForAPI already normalized the
@@ -1300,7 +1300,7 @@ async function* queryModel(
   // tool_uses and strips orphaned tool_results referencing non-existent tool_uses.
   messagesForAPI = ensureToolResultPairing(messagesForAPI)
 
-  // Strip advisor blocks â€” the API rejects them without the beta header.
+  // Strip advisor blocks â€?the API rejects them without the beta header.
   if (!betas.includes(ADVISOR_BETA_HEADER)) {
     messagesForAPI = stripAdvisorBlocks(messagesForAPI)
   }
@@ -1688,7 +1688,7 @@ async function* queryModel(
       )
     }
 
-    // Only send temperature when thinking is disabled â€” the API requires
+    // Only send temperature when thinking is disabled â€?the API requires
     // temperature: 1 when thinking is enabled, which is already the default.
     const temperature = !hasThinking
       ? (options.temperatureOverride ?? 1)
@@ -1730,7 +1730,7 @@ async function* queryModel(
 
   // Compute log scalars synchronously so the fire-and-forget .then() closure
   // captures only primitives instead of paramsFromContext's full closure scope
-  // (messagesForAPI, system, allTools, betas â€” the entire request-building
+  // (messagesForAPI, system, allTools, betas â€?the entire request-building
   // context), which would otherwise be pinned until the promise resolves.
   {
     const queryParams = paramsFromContext({
@@ -1809,7 +1809,7 @@ async function* queryModel(
 
         // Generate and track client request ID so timeouts (which return no
         // server request ID) can still be correlated with server logs.
-        // First-party only â€” 3P providers don't log it (inc-4029 class).
+        // First-party only â€?3P providers don't log it (inc-4029 class).
         clientRequestId =
           getAPIProvider() === 'firstParty' && isFirstPartyAnthropicBaseUrl()
             ? randomUUID()
@@ -2281,7 +2281,7 @@ async function* queryModel(
                 max_tokens: maxOutputTokens,
                 output_tokens: usage.output_tokens,
               })
-              // Reuse the max_output_tokens recovery path â€” from the model's
+              // Reuse the max_output_tokens recovery path â€?from the model's
               // perspective, both mean "response was cut off, continue from
               // where you left off."
               yield createAssistantAPIErrorMessage({
@@ -2598,7 +2598,7 @@ async function* queryModel(
   } catch (errorFromRetry) {
     // FallbackTriggeredError must propagate to query.ts, which performs the
     // actual model switch. Swallowing it here would turn the fallback into a
-    // no-op â€” the user would just see "Model fallback triggered: X -> Y" as
+    // no-op â€?the user would just see "Model fallback triggered: X -> Y" as
     // an error message with no actual retry on the fallback model.
     if (errorFromRetry instanceof FallbackTriggeredError) {
       throw errorFromRetry
@@ -2617,7 +2617,7 @@ async function* queryModel(
 
     if (is404StreamCreationError) {
       // 404 is thrown at .withResponse() before streamRequestId is assigned,
-      // and CannotRetryError means every retry failed â€” so grab the failed
+      // and CannotRetryError means every retry failed â€?so grab the failed
       // request's ID from the error header instead.
       const failedRequestId =
         (errorFromRetry.originalError as APIError).requestID ?? 'unknown'
@@ -2838,7 +2838,7 @@ async function* queryModel(
   // Track the last requestId for the main conversation chain so shutdown
   // can send a cache eviction hint to inference. Exclude backgrounded
   // sessions (Ctrl+B) which share the repl_main_thread querySource but
-  // run inside an agent context â€” they are independent conversation chains
+  // run inside an agent context â€?they are independent conversation chains
   // whose cache should not be evicted when the foreground session clears.
   if (
     streamRequestId &&
@@ -3019,7 +3019,7 @@ export function accumulateUsage(
         totalUsage.cache_creation.ephemeral_5m_input_tokens +
         messageUsage.cache_creation.ephemeral_5m_input_tokens,
     },
-    // See comment in updateUsage â€” field is not on NonNullableUsage to keep
+    // See comment in updateUsage â€?field is not on NonNullableUsage to keep
     // the string out of external builds.
     ...(feature('CACHED_MICROCOMPACT')
       ? {
@@ -3080,7 +3080,7 @@ export function addCacheBreakpoints(
   // local-attention KV pages at any cached prefix position NOT in
   // cache_store_int_token_boundaries. With two markers the second-to-last
   // position is protected and its locals survive an extra turn even though
-  // nothing will ever resume from there â€” with one marker they're freed
+  // nothing will ever resume from there â€?with one marker they're freed
   // immediately. For fire-and-forget forks (skipCacheWrite) we shift the
   // marker to the second-to-last message: that's the last shared-prefix
   // point, so the write is a no-op merge on mycro (entry already exists)
@@ -3179,7 +3179,7 @@ export function addCacheBreakpoints(
 
     // Add cache_reference to tool_result blocks that are strictly before
     // the last cache_control marker. The API requires cache_reference to
-    // appear "before or on" the last cache_control â€” we use strict "before"
+    // appear "before or on" the last cache_control â€?we use strict "before"
     // to avoid edge cases where cache_edits splicing shifts block indices.
     //
     // Create new objects instead of mutating in-place to avoid contaminating
@@ -3293,7 +3293,7 @@ export async function queryHaiku({
 type QueryWithModelOptions = Omit<Options, 'getToolPermissionContext'>
 
 /**
- * Query a specific model through the Claude Code infrastructure.
+ * Query a specific model through the xccodex infrastructure.
  * This goes through the full query pipeline including proper authentication,
  * betas, and headers - unlike direct API calls.
  */

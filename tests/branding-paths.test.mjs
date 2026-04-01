@@ -4,13 +4,12 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-test('package metadata still needs xccode rebrand', () => {
+test('package metadata uses xccodex branding', () => {
   const pkg = JSON.parse(
     fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
   )
-  assert.equal(pkg.name, 'xccode')
+  assert.equal(pkg.name, 'xccodex')
   assert.deepEqual(pkg.bin, {
-    xccode: 'dist/cli.js',
     xccodex: 'dist/xccodex.js',
   })
 })

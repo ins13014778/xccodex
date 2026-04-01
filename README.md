@@ -1,259 +1,365 @@
-﻿# xccode
+﻿# xccodex
 
-`xccode` is a terminal-first coding assistant CLI rebuilt from the recovered source tree in this repository.
+[中文说明](#中文说明) | [English](#english)
 
-> Status: the package name and docs are being prepared for npm, but `xccode` has **not** been published to npm yet. Do not assume `npm install -g xccode` works today unless a package has actually been released.
+---
 
-## What this repo is
+## 中文说明
 
-This repository is the maintainable source tree used to build the `xccode` CLI. It is suitable for:
+`xccodex` 是一个面向终端的 AI 编码助手 CLI。
 
-- building and testing the CLI from source
-- validating packaging via `npm run pack:check`
-- documenting the current public-facing config and compatibility story
+这个仓库当前已经整理为可构建、可测试、可打包、可继续发布的公开项目，并补充了：
 
-For repository build details, see [`docs/BUILD_MANUAL.md`](./docs/BUILD_MANUAL.md).
+- `xccodex` 一键启动入口
+- 首次启动交互式配置向导
+- CLI 内置 `/provider set|show|clear`
+- 支持在 `anthropic-compatible` 与 `openai-compatible` 之间切换
+- 支持自定义 API 地址、API Key、模型
+- 支持从源码构建 npm 包并做打包校验
 
-## Quick start
+> 当前对外品牌名是 **xccodex**。
+> 
+> 目前为了兼容已有实现，配置目录和环境变量前缀仍然使用：
+>
+> - 配置目录：`~/.xccode/`
+> - 环境变量前缀：`XCCODE_*`
+> - 规则文件：`XCCODE.md`
+>
+> 这是当前版本的技术兼容方案，不影响日常使用与后续公开发布。
 
-### Planned npm install command
+### 1. 环境要求
 
-When the package is published, the intended public install flow is:
+- Node.js `>= 18`
+- npm
+- Windows / macOS / Linux 均可
 
-```bash
-npm install -g xccode
-xccode
-xccodex
-```
+推荐：
 
-### Current repo-based install (works today)
+- Node.js 20+
+- Windows 下使用 PowerShell 7+
 
-Until npm publish happens, use this repository directly:
+### 2. 克隆后快速启动
 
 ```bash
 npm install
 npm run build
-npm start
+node .\dist\xccodex.js
 ```
 
-If you want to use the repo helper that mirrors global environment config into the local run, use:
+如果你已经配置过 provider，再次执行时会直接启动。
+
+如果还没有配置，`xccodex` 会自动进入向导，让你依次填写：
+
+1. 协议类型
+2. API Base URL
+3. API Key
+4. 模型名
+
+### 3. 一键安装脚本
+
+#### Windows PowerShell
+
+```powershell
+.\scripts\setup-windows.ps1
+```
+
+如果希望安装后直接把 `xccodex` 链接到全局命令：
+
+```powershell
+.\scripts\setup-windows.ps1 -LinkGlobal
+```
+
+#### macOS / Linux
 
 ```bash
-npm run cli:run
+bash ./scripts/setup-unix.sh
 ```
 
-## Starting xccode
-
-Common entry points:
+如果希望安装后直接链接全局命令：
 
 ```bash
-# interactive CLI after building
-npm start
-
-# repository helper (loads env from ~/.xccode/settings.json when available)
-npm run cli:run
-
-# one-shot prompt
-npm run cli:run -- -p "Reply with exactly: OK"
+bash ./scripts/setup-unix.sh --link-global
 ```
 
-> Note: `npm start` runs the built CLI directly. `npm run cli:run` is a repository helper for this source tree.
+### 4. 启动方式
 
-## One-click launcher: `xccodex`
-
-For less technical users, `xccodex` is the easiest entry point.
-
-Behavior:
-
-- if provider configuration already exists, it launches `xccode` directly
-- if provider configuration is missing or incomplete, it starts an interactive setup wizard
-- the wizard asks for:
-  - protocol
-  - base URL
-  - API key
-  - model
-- after saving the configuration, it launches `xccode` automatically
-
-Planned npm usage after publish:
+#### 方式 A：使用一键入口（推荐）
 
 ```bash
 xccodex
 ```
 
-Current source-tree usage after building:
+源码开发阶段也可以这样启动：
 
 ```bash
 node .\dist\xccodex.js
 ```
 
-Force the setup wizard again:
+强制重新进入配置向导：
 
 ```bash
 node .\dist\xccodex.js --reconfigure
 ```
 
-## Global settings: `~/.xccode/settings.json`
+#### 方式 B：直接运行主 CLI
 
-`xccode` now uses `~/.xccode/settings.json` as the primary global settings file.
-
-Minimal example:
-
-```json
-{
-  "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "model": "claude-sonnet-4-5",
-  "permissions": {
-    "defaultMode": "acceptEdits"
-  },
-  "env": {
-    "ANTHROPIC_API_KEY": "your-api-key"
-  }
-}
+```bash
+npm start
 ```
 
-Useful paths:
+或：
 
-- global settings: `~/.xccode/settings.json`
-- project settings: `.xccode/settings.json`
-- local uncommitted overrides: `.xccode/settings.local.json`
-
-If you are migrating from older Claude Code layouts, legacy `~/.claude/settings.json` may still be read by some compatibility paths, but new docs and new setups should use `~/.xccode/settings.json`.
-
-## PowerShell environment variable configuration
-
-For Windows / PowerShell users, you can configure credentials for the current shell session:
-
-```powershell
-$env:ANTHROPIC_API_KEY = 'your-api-key'
-$env:XCCODE_USE_OPENAI_COMPATIBLE = '1'
-$env:XCCODE_BASE_URL = 'https://api.openai.com/v1'
-$env:XCCODE_API_KEY = 'your-openai-compatible-key'
-$env:XCCODE_MODEL = 'gpt-4.1-mini'
+```bash
+node .\dist\cli.js
 ```
 
-To persist variables for future PowerShell sessions:
+### 5. 在 CLI 里配置接口 / 密钥 / 模型
 
-```powershell
-[Environment]::SetEnvironmentVariable('ANTHROPIC_API_KEY', 'your-api-key', 'User')
-[Environment]::SetEnvironmentVariable('XCCODE_USE_OPENAI_COMPATIBLE', '1', 'User')
-[Environment]::SetEnvironmentVariable('XCCODE_BASE_URL', 'https://api.openai.com/v1', 'User')
-[Environment]::SetEnvironmentVariable('XCCODE_API_KEY', 'your-openai-compatible-key', 'User')
-[Environment]::SetEnvironmentVariable('XCCODE_MODEL', 'gpt-4.1-mini', 'User')
-```
-
-After writing persistent variables, open a new terminal before running `xccode`.
-
-## OpenAI-compatible configuration example
-
-You can also keep the environment block inside `~/.xccode/settings.json`:
-
-```json
-{
-  "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "env": {
-    "XCCODE_USE_OPENAI_COMPATIBLE": "1",
-    "XCCODE_BASE_URL": "https://api.openai.com/v1",
-    "XCCODE_API_KEY": "your-openai-compatible-key",
-    "XCCODE_MODEL": "gpt-4.1-mini"
-  }
-}
-```
-
-This is the current adapter contract:
-
-- `XCCODE_USE_OPENAI_COMPATIBLE=1` enables the OpenAI-compatible provider
-- `XCCODE_BASE_URL` points to the provider base URL
-- `XCCODE_API_KEY` is the credential used for the OpenAI-compatible request
-- `XCCODE_MODEL` is the model name sent to the upstream `/chat/completions` API
-
-## Current OpenAI-compatible support boundary
-
-The current `openaiCompatible` implementation is intentionally minimal. It supports only:
-
-- basic text-only chat
-- non-stream completion + synthetic stream wrapper
-
-It does **not** currently support:
-
-- tools / tool calls
-- thinking / reasoning controls
-- structured output
-- full Anthropic semantic compatibility
-- broader multimodal or rich content block compatibility
-
-In practice, treat this adapter as a lightweight bridge for plain chat-completions style usage only. Do **not** rely on it for feature parity with Anthropic-native flows.
-
-## Provider command
-
-You can now configure the protocol, base URL, API key, and model from inside `xccode` itself.
-
-Supported protocols:
-
-- `anthropic-compatible`
-- `openai-compatible`
-
-Available commands:
+进入 CLI 后可直接使用：
 
 ```text
 /provider show
-/provider clear
 /provider set
+/provider clear
 ```
 
-Direct argument example:
+例如：
 
 ```text
 /provider set --protocol openai-compatible --base-url https://api.deepseek.com/v1 --api-key your_key --model deepseek-chat
 ```
 
-Anthropic-compatible example:
+Anthropic-compatible 示例：
 
 ```text
-/provider set --protocol anthropic-compatible --base-url https://your-anthropic-gateway.example/v1/messages --api-key your_key --model claude-3-5-sonnet
+/provider set --protocol anthropic-compatible --base-url https://your-gateway.example/v1/messages --api-key your_key --model claude-3-5-sonnet
 ```
 
-Notes:
+### 6. 协议说明
 
-- The configuration is saved into `~/.xccode/settings.json`
-- `openai-compatible` uses the current minimal adapter layer
-- `anthropic-compatible` uses the project's existing Anthropic-compatible path
-- `/provider show` masks the API key
-- `/provider clear` removes the saved provider configuration
+#### anthropic-compatible
 
-## `XCCODE.md` and `CLAUDE.md` compatibility
+- 复用项目现有的 Anthropic-compatible 路径
+- 适合兼容 Anthropic 消息格式的网关
 
-For project instructions and persistent working conventions:
+#### openai-compatible
 
-- preferred new file name: `XCCODE.md`
-- preferred user-level file location: `~/.xccode/XCCODE.md`
-- preferred project-level settings directory: `.xccode/`
+- 走当前项目内置的最小兼容适配层
+- 适合 DeepSeek / OpenRouter / 自建 OpenAI-compatible 网关等
+- 当前支持能力以基础文本对话为主
 
-Compatibility during migration:
+当前 `openai-compatible` **暂不承诺** 完整支持：
 
-- legacy `CLAUDE.md` files are still recognized in parts of the codebase
-- legacy `.claude/CLAUDE.md` and `.claude/rules/*.md` layouts may still be loaded by compatibility paths
-- existing repos do **not** need an immediate rename to keep working
-- new docs, onboarding, and examples should use `XCCODE.md` and `.xccode/`
+- tools / tool calls
+- 完整 thinking / reasoning 控制
+- 结构化输出全量兼容
+- 全量多模态块语义兼容
 
-If you are setting up a fresh repository, prefer:
+### 7. 环境变量配置
 
-```text
-XCCODE.md
-.xccode/settings.json
-.xccode/settings.local.json
+当前兼容变量如下：
+
+- `XCCODE_PROVIDER_PROTOCOL`
+- `XCCODE_BASE_URL`
+- `XCCODE_API_KEY`
+- `XCCODE_MODEL`
+- `XCCODE_USE_OPENAI_COMPATIBLE`
+
+#### PowerShell 示例
+
+```powershell
+$env:XCCODE_USE_OPENAI_COMPATIBLE = '1'
+$env:XCCODE_BASE_URL = 'https://api.openai.com/v1'
+$env:XCCODE_API_KEY = 'your-api-key'
+$env:XCCODE_MODEL = 'gpt-4.1-mini'
 ```
 
-## Packaging check
+持久化到当前用户环境：
 
-Before publishing or sharing a package tarball, run:
+```powershell
+[Environment]::SetEnvironmentVariable('XCCODE_USE_OPENAI_COMPATIBLE', '1', 'User')
+[Environment]::SetEnvironmentVariable('XCCODE_BASE_URL', 'https://api.openai.com/v1', 'User')
+[Environment]::SetEnvironmentVariable('XCCODE_API_KEY', 'your-api-key', 'User')
+[Environment]::SetEnvironmentVariable('XCCODE_MODEL', 'gpt-4.1-mini', 'User')
+```
+
+#### Bash 示例
 
 ```bash
+export XCCODE_USE_OPENAI_COMPATIBLE=1
+export XCCODE_BASE_URL=https://api.openai.com/v1
+export XCCODE_API_KEY=your-api-key
+export XCCODE_MODEL=gpt-4.1-mini
+```
+
+### 8. 配置文件位置
+
+当前主配置文件：
+
+- 用户级：`~/.xccode/settings.json`
+- 项目级：`.xccode/settings.json`
+- 本地未提交覆盖：`.xccode/settings.local.json`
+
+当前主规则文件：
+
+- 用户级：`~/.xccode/XCCODE.md`
+- 项目级：`./XCCODE.md`
+
+兼容说明：
+
+- 旧的 `CLAUDE.md` 仍有兼容路径
+- 新示例优先使用 `XCCODE.md`
+
+### 9. 构建、测试、打包
+
+```bash
+npm test
+npm run build
 npm run pack:check
 ```
 
-This performs `npm pack --dry-run` so you can verify the package contents without pretending the package has already been published.
+查看帮助：
 
-## Related docs
+```bash
+node .\dist\cli.js --help
+node .\dist\xccodex.js --help
+```
 
-- build and packaging notes: [`docs/BUILD_MANUAL.md`](./docs/BUILD_MANUAL.md)
+### 10. 本地调试
 
+```bash
+npm run cli:run
+```
+
+单次 prompt：
+
+```bash
+npm run cli:run -- -p "Reply with exactly: OK"
+```
+
+### 11. 发布 npm 公共包
+
+确认通过构建和打包检查后：
+
+```bash
+npm publish --access public
+```
+
+当前包名：
+
+```text
+xccodex
+```
+
+### 12. GitHub
+
+建议公开仓库名称：
+
+```text
+ins13014778/xccodex
+```
+
+---
+
+## English
+
+`xccodex` is a terminal-first AI coding assistant CLI.
+
+This repository currently includes:
+
+- the `xccodex` one-click launcher
+- a first-run interactive setup wizard
+- `/provider set|show|clear`
+- protocol switching between `anthropic-compatible` and `openai-compatible`
+- custom base URL / API key / model configuration
+- build / test / pack validation for npm publishing
+
+> Public branding is **xccodex**.
+> 
+> For implementation compatibility, the current config root and env prefix are still:
+>
+> - config root: `~/.xccode/`
+> - env prefix: `XCCODE_*`
+> - rules file: `XCCODE.md`
+
+### Quick start
+
+```bash
+npm install
+npm run build
+node ./dist/xccodex.js
+```
+
+### One-click setup scripts
+
+Windows:
+
+```powershell
+.\scripts\setup-windows.ps1
+```
+
+macOS / Linux:
+
+```bash
+bash ./scripts/setup-unix.sh
+```
+
+### Start commands
+
+```bash
+xccodex
+```
+
+or from source:
+
+```bash
+node ./dist/xccodex.js
+```
+
+Force the wizard again:
+
+```bash
+node ./dist/xccodex.js --reconfigure
+```
+
+### Configure provider inside the CLI
+
+```text
+/provider show
+/provider set
+/provider clear
+```
+
+Example:
+
+```text
+/provider set --protocol openai-compatible --base-url https://api.deepseek.com/v1 --api-key your_key --model deepseek-chat
+```
+
+### Current config files
+
+- user: `~/.xccode/settings.json`
+- project: `.xccode/settings.json`
+- local override: `.xccode/settings.local.json`
+- user rules: `~/.xccode/XCCODE.md`
+- project rules: `./XCCODE.md`
+
+### Build / test / pack
+
+```bash
+npm test
+npm run build
+npm run pack:check
+```
+
+### Publish publicly to npm
+
+```bash
+npm publish --access public
+```
+
+Package name:
+
+```text
+xccodex
+```

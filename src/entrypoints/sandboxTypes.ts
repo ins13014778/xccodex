@@ -1,5 +1,5 @@
 /**
- * Sandbox types for the Claude Code Agent SDK
+ * Sandbox types for the xccodex Agent SDK
  *
  * This file is the single source of truth for sandbox configuration types.
  * Both the SDK and the settings validation import from here.
@@ -129,7 +129,7 @@ export const SandboxSettingsSchema = lazySchema(() =>
           'macOS only: Allow access to com.apple.trustd.agent in the sandbox. ' +
             'Needed for Go-based CLI tools (gh, gcloud, terraform, etc.) to verify TLS certificates ' +
             'when using httpProxyPort with a MITM proxy and custom CA. ' +
-            '**Reduces security** â€” opens a potential data exfiltration vector through the trustd service. Default: false',
+            '**Reduces security** â€?opens a potential data exfiltration vector through the trustd service. Default: false',
         ),
       excludedCommands: z.array(z.string()).optional(),
       ripgrep: z

@@ -37,7 +37,7 @@ const CLAUDE_SOCKET_PREFIX = 'claude'
 
 /**
  * Executes a tmux command, routing through WSL on Windows.
- * On Windows, tmux only exists inside WSL â€” WSL interop lets the tmux session
+ * On Windows, tmux only exists inside WSL â€?WSL interop lets the tmux session
  * launch .exe files as native Win32 processes while stdin/stdout flow through
  * the WSL pty.
  */
@@ -48,8 +48,7 @@ async function execTmux(
   if (getPlatform() === 'windows') {
     // -e execs tmux directly without the login shell. Without it, wsl hands the
     // command line to bash which eats `#` as a comment: `display-message -p
-    // #{socket_path},#{pid}` below becomes `display-message -p ` â†’ exit 1 â†’
-    // we silently fall back to the guessed path and never learn the real
+    // #{socket_path},#{pid}` below becomes `display-message -p ` â†?exit 1 â†?    // we silently fall back to the guessed path and never learn the real
     // server PID. Same root cause as TungstenTool/utils.ts:execTmuxCommand.
     const result = await execFileNoThrow('wsl', ['-e', TMUX_COMMAND, ...args], {
       env: { ...process.env, WSL_UTF8: '1' },
@@ -276,7 +275,7 @@ async function doInitialize(): Promise<void> {
   // that socket stops servicing requests. Any cli.exe launched inside the pane
   // then hits `UtilAcceptVsock: accept4 failed 110` (ETIMEDOUT). Observed on
   // 2026-03-25: server PID 386 (started alongside /init at WSL boot) inherited
-  // /run/WSL/383_interop â€” init's own socket, which listens but doesn't handle
+  // /run/WSL/383_interop â€?init's own socket, which listens but doesn't handle
   // interop. /run/WSL/1_interop is a stable symlink WSL maintains to the real
   // handler; pin the server to it so interop survives the spawning wsl.exe.
   const result = await execTmux([
@@ -316,7 +315,7 @@ async function doInitialize(): Promise<void> {
   // Set CLAUDE_CODE_SKIP_PROMPT_HISTORY in the tmux GLOBAL environment (-g).
   // Without -g this would only apply to the 'base' session, and new sessions
   // created by TungstenTool (e.g. 'test', 'verify') would not inherit it.
-  // Any Claude Code instance spawned on this socket will inherit this env var,
+  // Any xccodex instance spawned on this socket will inherit this env var,
   // preventing test/verification sessions from polluting the user's real
   // command history and --resume session list.
   await execTmux([

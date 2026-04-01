@@ -2,7 +2,7 @@
  * SDK MCP Transport Bridge
  *
  * This file implements a transport bridge that allows MCP servers running in the SDK process
- * to communicate with the Claude Code CLI process through control messages.
+ * to communicate with the xccodex CLI process through control messages.
  *
  * ## Architecture Overview
  *
@@ -13,14 +13,14 @@
  *
  * ## Message Flow
  *
- * ### CLI â†’ SDK (via SdkControlClientTransport)
- * 1. CLI's MCP Client calls a tool â†’ sends JSONRPC request to SdkControlClientTransport
+ * ### CLI â†?SDK (via SdkControlClientTransport)
+ * 1. CLI's MCP Client calls a tool â†?sends JSONRPC request to SdkControlClientTransport
  * 2. Transport wraps the message in a control request with server_name and request_id
  * 3. Control request is sent via stdout to the SDK process
  * 4. SDK's StructuredIO receives the control response and routes it back to the transport
  * 5. Transport unwraps the response and returns it to the MCP Client
  *
- * ### SDK â†’ CLI (via SdkControlServerTransport)
+ * ### SDK â†?CLI (via SdkControlServerTransport)
  * 1. Query receives control request with MCP message and calls transport.onmessage
  * 2. MCP server processes the message and calls transport.send() with response
  * 3. Transport calls sendMcpMessage callback with the response

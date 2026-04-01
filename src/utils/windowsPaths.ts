@@ -102,7 +102,7 @@ export const findGitBashPath = memoize((): string => {
     }
     // biome-ignore lint/suspicious/noConsole:: intentional console output
     console.error(
-      `Claude Code was unable to find CLAUDE_CODE_GIT_BASH_PATH path "${process.env.CLAUDE_CODE_GIT_BASH_PATH}"`,
+      `xccodex was unable to find CLAUDE_CODE_GIT_BASH_PATH path "${process.env.CLAUDE_CODE_GIT_BASH_PATH}"`,
     )
     // eslint-disable-next-line custom-rules/no-process-exit
     process.exit(1)
@@ -118,7 +118,7 @@ export const findGitBashPath = memoize((): string => {
 
   // biome-ignore lint/suspicious/noConsole:: intentional console output
   console.error(
-    'Claude Code on Windows requires git-bash (https://git-scm.com/downloads/win). If installed but not in PATH, set environment variable pointing to your bash.exe, similar to: CLAUDE_CODE_GIT_BASH_PATH=C:\\Program Files\\Git\\bin\\bash.exe',
+    'xccodex on Windows requires git-bash (https://git-scm.com/downloads/win). If installed but not in PATH, set environment variable pointing to your bash.exe, similar to: CLAUDE_CODE_GIT_BASH_PATH=C:\\Program Files\\Git\\bin\\bash.exe',
   )
   // eslint-disable-next-line custom-rules/no-process-exit
   process.exit(1)
@@ -137,7 +137,7 @@ export const windowsPathToPosixPath = memoizeWithLRU(
       const driveLetter = match[1]!.toLowerCase()
       return '/' + driveLetter + windowsPath.slice(2).replace(/\\/g, '/')
     }
-    // Already POSIX or relative â€” just flip slashes
+    // Already POSIX or relative â€?just flip slashes
     return windowsPath.replace(/\\/g, '/')
   },
   (p: string) => p,
@@ -165,7 +165,7 @@ export const posixPathToWindowsPath = memoizeWithLRU(
       const rest = posixPath.slice(2)
       return driveLetter + ':' + (rest || '\\').replace(/\//g, '\\')
     }
-    // Already Windows or relative â€” just flip slashes
+    // Already Windows or relative â€?just flip slashes
     return posixPath.replace(/\//g, '\\')
   },
   (p: string) => p,

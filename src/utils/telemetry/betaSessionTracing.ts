@@ -1,5 +1,5 @@
 /**
- * Beta Session Tracing for Claude Code
+ * Beta Session Tracing for xccodex
  *
  * This module contains beta tracing features enabled when
  * ENABLE_BETA_TRACING_DETAILED=1 and BETA_TRACING_ENDPOINT are set.
@@ -12,11 +12,11 @@
  * Visibility Rules:
  * | Content          | External | Ant  |
  * |------------------|----------|------|
- * | System prompts   | ‚úÖ                  | ‚úÖ   |
- * | Model output     | ‚úÖ                  | ‚úÖ   |
- * | Thinking output  | ‚ùå                  | ‚úÖ   |
- * | Tools            | ‚úÖ                  | ‚úÖ   |
- * | new_context      | ‚úÖ                  | ‚úÖ   |
+ * | System prompts   | ‚ú?                 | ‚ú?  |
+ * | Model output     | ‚ú?                 | ‚ú?  |
+ * | Thinking output  | ‚ù?                 | ‚ú?  |
+ * | Tools            | ‚ú?                 | ‚ú?  |
+ * | new_context      | ‚ú?                 | ‚ú?  |
  *
  * Features:
  * - Per-agent message tracking with hash-based deduplication

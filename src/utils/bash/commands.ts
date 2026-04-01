@@ -54,7 +54,7 @@ function isStaticRedirectTarget(target: string): boolean {
   // Reject any target containing whitespace or quote chars (quotes indicate
   // the placeholder-restoration preserved a quoted arg).
   if (/[\s'"]/.test(target)) return false
-  // Reject empty string â€” path.resolve(cwd, '') returns cwd (always allowed).
+  // Reject empty string â€?path.resolve(cwd, '') returns cwd (always allowed).
   if (target.length === 0) return false
   // SECURITY (parser differential hardening): shell-quote parses `#foo` at
   // word-initial position as a comment token. In bash, `#` after whitespace
@@ -124,10 +124,10 @@ export function splitCommandWithOperators(command: string): string[] {
   // returns a single-element array that downstream permission checks process
   // as ONE subcommand. If we return the ORIGINAL (pre-join) text, the
   // validator checks `foo\<NL>bar` while bash executes `foobar` (joined).
-  // Exploit: `echo "$\<NL>{}" ; curl evil.com` â€” pre-join, `$` and `{}` are
+  // Exploit: `echo "$\<NL>{}" ; curl evil.com` â€?pre-join, `$` and `{}` are
   // split across lines so `${}` isn't a dangerous pattern; `;` is visible but
   // the whole thing is ONE subcommand matching `Bash(echo:*)`. Post-join,
-  // zsh/bash executes `echo "${}" ; curl evil.com` â†’ curl runs.
+  // zsh/bash executes `echo "${}" ; curl evil.com` â†?curl runs.
   // We join on the ORIGINAL (not processedCommand) so the fallback doesn't
   // need to deal with heredoc placeholders.
   const commandOriginalJoined = command.replace(/\\+\n/g, match => {
@@ -203,7 +203,7 @@ export function splitCommandWithOperators(command: string): string[] {
           // shell-quote preserves comment text verbatim, including our
           // injected `"PLACEHOLDER` / `'PLACEHOLDER` markers from step 0.
           // Since the original quote was NOT stripped (comments are literal),
-          // the un-placeholder step below would double each quote (`"` â†’ `""`).
+          // the un-placeholder step below would double each quote (`"` â†?`""`).
           // On recursive splitCommand calls this grows exponentially until
           // shell-quote's chunker regex catastrophically backtracks (ReDoS).
           // Strip the injected-quote prefix so un-placeholder yields one quote.
@@ -291,7 +291,7 @@ export function splitCommand_DEPRECATED(command: string): string[] {
       // prefix of the NEXT redirect (`>&1`). Detect this: nextPart ends with
       // ` <FD>` AND afterNextPart is a redirect operator. Split off the FD
       // suffix so isStaticRedirectTarget sees only the actual target. The FD
-      // suffix is harmless to drop â€” it's handled when the loop reaches `>&`.
+      // suffix is harmless to drop â€?it's handled when the loop reaches `>&`.
       let effectiveNextPart = nextPart
       if (
         (part === '>' || part === '>>') &&
@@ -436,9 +436,9 @@ export function isHelpCommand(command: string): boolean {
 }
 
 const BASH_POLICY_SPEC = `<policy_spec>
-# Claude Code Code Bash command prefix detection
+# xccodex Code Bash command prefix detection
 
-This document defines risk levels for actions that the Claude Code agent may take. This classification system is part of a broader safety framework and is used to determine when additional user confirmation or oversight may be needed.
+This document defines risk levels for actions that the xccodex agent may take. This classification system is part of a broader safety framework and is used to determine when additional user confirmation or oversight may be needed.
 
 ## Definitions
 
@@ -641,30 +641,29 @@ export function extractOutputRedirections(cmd: string): {
 
   // SECURITY: Extract heredocs BEFORE line-continuation joining AND parsing.
   // This matches splitCommandWithOperators (line 101). Quoted-heredoc bodies
-  // are LITERAL text in bash (`<< 'EOF'\n${}\nEOF` â€” ${} is NOT expanded, and
+  // are LITERAL text in bash (`<< 'EOF'\n${}\nEOF` â€?${} is NOT expanded, and
   // `\<newline>` is NOT a continuation). But shell-quote doesn't understand
   // heredocs; it sees `${}` on line 2 as an unquoted bad substitution and throws.
   //
   // ORDER MATTERS: If we join continuations first, a quoted heredoc body
-  // containing `x\<newline>DELIM` gets joined to `xDELIM` â€” the delimiter
+  // containing `x\<newline>DELIM` gets joined to `xDELIM` â€?the delimiter
   // shifts, and `> /etc/passwd` that bash executes gets swallowed into the
   // heredoc body and NEVER reaches path validation.
   //
   // Attack: `cat <<'ls'\nx\\\nls\n> /etc/passwd\nls` with Bash(cat:*)
-  //   - bash: quoted heredoc â†’ `\` is literal, body = `x\`, next `ls` closes
-  //     heredoc â†’ `> /etc/passwd` TRUNCATES the file, final `ls` runs
-  //   - join-first (OLD, WRONG): `x\<NL>ls` â†’ `xls`, delimiter search finds
-  //     the LAST `ls`, body = `xls\n> /etc/passwd` â†’ redirections:[] â†’
-  //     /etc/passwd NEVER validated â†’ FILE WRITE, no prompt
+  //   - bash: quoted heredoc â†?`\` is literal, body = `x\`, next `ls` closes
+  //     heredoc â†?`> /etc/passwd` TRUNCATES the file, final `ls` runs
+  //   - join-first (OLD, WRONG): `x\<NL>ls` â†?`xls`, delimiter search finds
+  //     the LAST `ls`, body = `xls\n> /etc/passwd` â†?redirections:[] â†?  //     /etc/passwd NEVER validated â†?FILE WRITE, no prompt
   //   - extract-first (NEW, matches splitCommandWithOperators): body = `x\`,
-  //     `> /etc/passwd` survives â†’ captured â†’ path-validated
+  //     `> /etc/passwd` survives â†?captured â†?path-validated
   //
   // Original attack (why extract-before-parse exists at all):
   //   `echo payload << 'EOF' > /etc/passwd\n${}\nEOF` with Bash(echo:*)
-  //   - bash: quoted heredoc â†’ ${} literal, echo writes "payload\n" to /etc/passwd
-  //   - checkPathConstraints: calls THIS function on original â†’ ${} crashes
-  //     shell-quote â†’ previously returned {redirections:[], dangerous:false}
-  //     â†’ /etc/passwd NEVER validated â†’ FILE WRITE, no prompt.
+  //   - bash: quoted heredoc â†?${} literal, echo writes "payload\n" to /etc/passwd
+  //   - checkPathConstraints: calls THIS function on original â†?${} crashes
+  //     shell-quote â†?previously returned {redirections:[], dangerous:false}
+  //     â†?/etc/passwd NEVER validated â†?FILE WRITE, no prompt.
   const { processedCommand: heredocExtracted, heredocs } = extractHeredocs(cmd)
 
   // SECURITY: Join line continuations AFTER heredoc extraction, BEFORE parsing.
@@ -686,7 +685,7 @@ export function extractOutputRedirections(cmd: string): {
   const parseResult = tryParseShellCommand(processedCommand, env => `$${env}`)
 
   // SECURITY: FAIL-CLOSED on parse failure. Previously returned
-  // {redirections:[], hasDangerousRedirection:false} â€” a silent bypass.
+  // {redirections:[], hasDangerousRedirection:false} â€?a silent bypass.
   // If shell-quote can't parse (even after heredoc extraction), we cannot
   // verify what redirections exist. Any `>` in the command could write files.
   // Callers MUST treat this as dangerous and ask the user.
@@ -821,8 +820,8 @@ function isSimpleTarget(target: ParseEntry | undefined): target is string {
  * bypass path validation. These require manual approval for security.
  *
  * Design invariant: for every string redirect target, EITHER isSimpleTarget
- * is TRUE (â†’ captured â†’ path-validated) OR hasDangerousExpansion is TRUE
- * (â†’ flagged dangerous â†’ ask). A target that fails BOTH falls through to
+ * is TRUE (â†?captured â†?path-validated) OR hasDangerousExpansion is TRUE
+ * (â†?flagged dangerous â†?ask). A target that fails BOTH falls through to
  * {skip:0, dangerous:false} and is NEVER validated. To maintain the
  * invariant, hasDangerousExpansion must cover EVERY case that isSimpleTarget
  * rejects (except the empty string which is handled separately).
@@ -830,7 +829,7 @@ function isSimpleTarget(target: ParseEntry | undefined): target is string {
 function hasDangerousExpansion(target: ParseEntry | undefined): boolean {
   // shell-quote parses unquoted globs as {op:'glob', pattern:'...'} objects,
   // not strings. `> *.sh` as a redirect target expands at runtime (single match
-  // â†’ overwrite, multiple â†’ ambiguous-redirect error). Flag these as dangerous.
+  // â†?overwrite, multiple â†?ambiguous-redirect error). Flag these as dangerous.
   if (typeof target === 'object' && target !== null && 'op' in target) {
     if (target.op === 'glob') return true
     return false
@@ -848,7 +847,7 @@ function hasDangerousExpansion(target: ParseEntry | undefined): boolean {
     target.startsWith('!') || // History expansion (was only in isSimpleTarget)
     target.startsWith('=') || // Zsh equals expansion (=cmd -> /path/to/cmd)
     // ALL tilde-prefixed targets. Previously `~` and `~/path` were carved out
-    // with a comment claiming "handled by expandTilde" â€” but expandTilde only
+    // with a comment claiming "handled by expandTilde" â€?but expandTilde only
     // runs via validateOutputRedirections(redirections), and for `~/path` the
     // redirections array is EMPTY (isSimpleTarget rejected it, so it was never
     // pushed). The carve-out created a gap where `> ~/.bashrc` was neither
@@ -1176,8 +1175,7 @@ function needsQuoting(str: string): boolean {
   // SECURITY: Must match ALL characters that the regex `\s` class matches.
   // Previously only checked space/tab; downstream consumers like ENV_VAR_PATTERN
   // use `\s+`. If reconstructCommand emits unquoted `\n` or `\r`, stripSafeWrappers
-  // matches across it, stripping `TZ=UTC` from `TZ=UTC\necho curl evil.com` â€”
-  // matching `Bash(echo:*)` while bash word-splits on the newline and runs `curl`.
+  // matches across it, stripping `TZ=UTC` from `TZ=UTC\necho curl evil.com` â€?  // matching `Bash(echo:*)` while bash word-splits on the newline and runs `curl`.
   if (/\s/.test(str)) return true
 
   // Single-character shell operators need quoting to avoid ambiguity

@@ -185,7 +185,7 @@ export async function prepareApiRequest(): Promise<{
   const accessToken = getClaudeAIOAuthTokens()?.accessToken
   if (accessToken === undefined) {
     throw new Error(
-      'Claude Code web sessions require authentication with a Claude.ai account. API key authentication is not sufficient. Please run /login to authenticate, or check your authentication status with /status.',
+      'xccodex web sessions require authentication with a Claude.ai account. API key authentication is not sufficient. Please run /login to authenticate, or check your authentication status with /status.',
     )
   }
 
@@ -354,7 +354,7 @@ export type RemoteMessageContent =
  * Sends a user message event to an existing remote session via the Sessions API
  * @param sessionId The session ID to send the event to
  * @param messageContent The user message content (string or content blocks)
- * @param opts.uuid Optional UUID for the event â€” callers that added a local
+ * @param opts.uuid Optional UUID for the event â€?callers that added a local
  *   UserMessage first should pass its UUID so echo filtering can dedup
  * @returns Promise<boolean> True if successful, false otherwise
  */

@@ -17,7 +17,7 @@ import {
  * Fields that belong in marketplace.json entries (PluginMarketplaceEntrySchema)
  * but not plugin.json (PluginManifestSchema). Plugin authors reasonably copy
  * one into the other. Surfaced as warnings by `claude plugin validate` since
- * they're a known confusion point â€” the load path silently strips all unknown
+ * they're a known confusion point â€?the load path silently strips all unknown
  * keys via zod's default behavior, so they're harmless at runtime but worth
  * flagging to authors.
  */
@@ -107,7 +107,7 @@ function checkPathTraversal(
 
 // Shown when a marketplace plugin source contains '..'. Most users hit this because
 // they expect paths to resolve relative to marketplace.json (inside .claude-plugin/),
-// but resolution actually starts at the marketplace repo root â€” see gh-29485.
+// but resolution actually starts at the marketplace repo root â€?see gh-29485.
 // Computes a tailored "use X instead of Y" suggestion from the user's actual path
 // rather than a hardcoded example (review feedback on #20895).
 function marketplaceSourceHint(p: string): string {
@@ -133,7 +133,7 @@ export async function validatePluginManifest(
   const warnings: ValidationWarning[] = []
   const absolutePath = path.resolve(filePath)
 
-  // Read file content â€” handle ENOENT / EISDIR / permission errors directly
+  // Read file content â€?handle ENOENT / EISDIR / permission errors directly
   let content: string
   try {
     content = await readFile(absolutePath, { encoding: 'utf-8' })
@@ -213,7 +213,7 @@ export async function validatePluginManifest(
   }
 
   // Surface marketplace-only fields as a warning BEFORE validation flags
-  // them. `claude plugin validate` is a developer tool â€” authors running it
+  // them. `claude plugin validate` is a developer tool â€?authors running it
   // want to know these fields don't belong here. But it's a warning, not an
   // error: the plugin loads fine at runtime (the base schema strips unknown
   // keys). We strip them here so the .strict() call below doesn't double-
@@ -232,7 +232,7 @@ export async function validatePluginManifest(
           path: key,
           message:
             `Field '${key}' belongs in the marketplace entry (marketplace.json), ` +
-            `not plugin.json. It's harmless here but unused â€” Claude Code ` +
+            `not plugin.json. It's harmless here but unused â€?xccodex ` +
             `ignores it at load time.`,
         })
       }
@@ -241,8 +241,7 @@ export async function validatePluginManifest(
   }
 
   // Validate against schema (post-strip, so marketplace fields don't fail it).
-  // We call .strict() locally here even though the base schema is lenient â€”
-  // the runtime load path silently strips unknown keys for resilience, but
+  // We call .strict() locally here even though the base schema is lenient â€?  // the runtime load path silently strips unknown keys for resilience, but
   // this is a developer tool and authors running it want typo feedback.
   const result = PluginManifestSchema().strict().safeParse(toValidate)
 
@@ -261,7 +260,7 @@ export async function validatePluginManifest(
       warnings.push({
         path: 'name',
         message:
-          `Plugin name "${manifest.name}" is not kebab-case. Claude Code accepts ` +
+          `Plugin name "${manifest.name}" is not kebab-case. xccodex accepts ` +
           `it, but the Claude.ai marketplace sync requires kebab-case ` +
           `(lowercase letters, digits, and hyphens only, e.g., "my-plugin").`,
       })
@@ -314,7 +313,7 @@ export async function validateMarketplaceManifest(
   const warnings: ValidationWarning[] = []
   const absolutePath = path.resolve(filePath)
 
-  // Read file content â€” handle ENOENT / EISDIR / permission errors directly
+  // Read file content â€?handle ENOENT / EISDIR / permission errors directly
   let content: string
   try {
     content = await readFile(absolutePath, { encoding: 'utf-8' })
@@ -375,8 +374,7 @@ export async function validateMarketplaceManifest(
           }
           // Check object-source .path (git-subdir: subdirectory within the
           // remote repo, sparse-cloned). '..' here is a genuine traversal attempt
-          // within the remote repo tree, not a marketplace-root misunderstanding â€”
-          // keep the security framing (no marketplaceSourceHint). See #20895 review.
+          // within the remote repo tree, not a marketplace-root misunderstanding â€?          // keep the security framing (no marketplaceSourceHint). See #20895 review.
           if (
             source &&
             typeof source === 'object' &&
@@ -396,7 +394,7 @@ export async function validateMarketplaceManifest(
 
   // Validate against schema.
   // The base schemas are lenient (strip unknown keys) for runtime resilience,
-  // but this is a developer tool â€” authors want typo feedback. We rebuild the
+  // but this is a developer tool â€?authors want typo feedback. We rebuild the
   // schema with .strict() here. Note .strict() on the outer object does NOT
   // propagate into z.array() elements, so we also override the plugins array
   // with strict entries to catch typos inside individual plugin entries too.
@@ -441,7 +439,7 @@ export async function validateMarketplaceManifest(
       // Version-mismatch check: for local-source entries that declare a
       // version, compare against the plugin's own plugin.json. At install
       // time, calculatePluginVersion (pluginVersioning.ts) prefers the
-      // manifest version and silently ignores the entry version â€” so a
+      // manifest version and silently ignores the entry version â€?so a
       // stale entry.version is invisible user confusion (marketplace UI
       // shows one version, /status shows another after install).
       // Only local sources: remote sources would need cloning to check.
@@ -480,7 +478,7 @@ export async function validateMarketplaceManifest(
             path: `plugins[${i}].version`,
             message:
               `Entry declares version "${entry.version}" but ${entry.source}/.claude-plugin/plugin.json says "${manifestVersion}". ` +
-              `At install time, plugin.json wins (calculatePluginVersion precedence) â€” the entry version is silently ignored. ` +
+              `At install time, plugin.json wins (calculatePluginVersion precedence) â€?the entry version is silently ignored. ` +
               `Update this entry to "${manifestVersion}" to match.`,
           })
         }
@@ -586,7 +584,7 @@ function validateComponentFile(
   }
 
   // name: if present, must be a string (skills/commands use it as displayName;
-  // plugin agents use it as the agentType stem â€” non-strings would stringify to garbage)
+  // plugin agents use it as the agentType stem â€?non-strings would stringify to garbage)
   if (
     fm.name !== undefined &&
     fm.name !== null &&
@@ -623,8 +621,7 @@ function validateComponentFile(
         message: `shell must be a string, got ${typeof sh}.`,
       })
     } else {
-      // Normalize to match parseShellFrontmatter() runtime behavior â€”
-      // `shell: PowerShell` should not fail validation but work at runtime.
+      // Normalize to match parseShellFrontmatter() runtime behavior â€?      // `shell: PowerShell` should not fail validation but work at runtime.
       const normalized = sh.trim().toLowerCase()
       if (normalized !== 'bash' && normalized !== 'powershell') {
         errors.push({
@@ -640,7 +637,7 @@ function validateComponentFile(
 
 /**
  * Validate a plugin's hooks.json file. Unlike frontmatter, this one HARD-ERRORS
- * at runtime (pluginLoader uses .parse() not .safeParse()) â€” a bad hooks.json
+ * at runtime (pluginLoader uses .parse() not .safeParse()) â€?a bad hooks.json
  * breaks the whole plugin. Surfacing it here is essential.
  */
 async function validateHooksJson(filePath: string): Promise<ValidationResult> {
@@ -649,7 +646,7 @@ async function validateHooksJson(filePath: string): Promise<ValidationResult> {
     content = await readFile(filePath, { encoding: 'utf-8' })
   } catch (e: unknown) {
     const code = getErrnoCode(e)
-    // ENOENT is fine â€” hooks are optional
+    // ENOENT is fine â€?hooks are optional
     if (code === 'ENOENT') {
       return {
         success: true,
@@ -728,7 +725,7 @@ async function collectMarkdown(
     throw e
   }
 
-  // Skills use <name>/SKILL.md â€” only descend one level, only collect SKILL.md.
+  // Skills use <name>/SKILL.md â€?only descend one level, only collect SKILL.md.
   // Matches the runtime loader: single .md files in skills/ are NOT loaded,
   // and subdirectories of a skill dir aren't scanned. Paths are speculative
   // (the subdir may lack SKILL.md); the caller handles ENOENT.
@@ -752,7 +749,7 @@ async function collectMarkdown(
 }
 
 /**
- * Validate the content files inside a plugin directory â€” skills, agents,
+ * Validate the content files inside a plugin directory â€?skills, agents,
  * commands, and hooks.json. Scans the default component directories (the
  * manifest can declare custom paths but the default layout covers the vast
  * majority of plugins; this is a linter, not a loader).
@@ -816,7 +813,7 @@ export async function validateManifest(
 ): Promise<ValidationResult> {
   const absolutePath = path.resolve(filePath)
 
-  // Stat path to check if it's a directory â€” handle ENOENT inline
+  // Stat path to check if it's a directory â€?handle ENOENT inline
   let stats: Stats | null = null
   try {
     stats = await stat(absolutePath)
