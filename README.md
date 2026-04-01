@@ -23,6 +23,7 @@ When the package is published, the intended public install flow is:
 ```bash
 npm install -g xccode
 xccode
+xccodex
 ```
 
 ### Current repo-based install (works today)
@@ -57,6 +58,39 @@ npm run cli:run -- -p "Reply with exactly: OK"
 ```
 
 > Note: `npm start` runs the built CLI directly. `npm run cli:run` is a repository helper for this source tree.
+
+## One-click launcher: `xccodex`
+
+For less technical users, `xccodex` is the easiest entry point.
+
+Behavior:
+
+- if provider configuration already exists, it launches `xccode` directly
+- if provider configuration is missing or incomplete, it starts an interactive setup wizard
+- the wizard asks for:
+  - protocol
+  - base URL
+  - API key
+  - model
+- after saving the configuration, it launches `xccode` automatically
+
+Planned npm usage after publish:
+
+```bash
+xccodex
+```
+
+Current source-tree usage after building:
+
+```bash
+node .\dist\xccodex.js
+```
+
+Force the setup wizard again:
+
+```bash
+node .\dist\xccodex.js --reconfigure
+```
 
 ## Global settings: `~/.xccode/settings.json`
 

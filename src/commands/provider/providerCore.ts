@@ -16,6 +16,20 @@ export type ProviderConfig = {
   model: string
 }
 
+export const RECOMMENDED_MODELS: Record<ProviderProtocol, readonly string[]> = {
+  'anthropic-compatible': [
+    'claude-sonnet-4-6',
+    'claude-sonnet-4-5',
+    'claude-3-5-sonnet',
+  ],
+  'openai-compatible': [
+    'deepseek-chat',
+    'glm-4.5',
+    'qwen-plus',
+    'gpt-4.1-mini',
+  ],
+} as const
+
 export type ParsedProviderCommand =
   | { action: 'show' | 'clear' | 'help' }
   | {
@@ -133,6 +147,23 @@ export function validateCompleteProviderConfig(
   }
 }
 
+export function isProviderConfigComplete(
+  config: Partial<ProviderConfig>,
+): config is ProviderConfig {
+  return Boolean(
+    config.protocol &&
+      config.baseUrl?.trim() &&
+      config.apiKey?.trim() &&
+      config.model?.trim(),
+  )
+}
+
+export function getRecommendedModels(
+  protocol: ProviderProtocol,
+): readonly string[] {
+  return RECOMMENDED_MODELS[protocol]
+}
+
 export function buildProviderEnvUpdate(config: ProviderConfig): Record<string, string | undefined> {
   return {
     XCCODE_PROVIDER_PROTOCOL: config.protocol,
@@ -220,4 +251,3 @@ export function formatProviderConfigForDisplay(
     `API Key: ${maskProviderSecret(config.apiKey)}`,
   ].join('\n')
 }
-

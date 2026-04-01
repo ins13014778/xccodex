@@ -9,7 +9,10 @@ test('package metadata still needs xccode rebrand', () => {
     fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
   )
   assert.equal(pkg.name, 'xccode')
-  assert.deepEqual(pkg.bin, { xccode: 'dist/cli.js' })
+  assert.deepEqual(pkg.bin, {
+    xccode: 'dist/cli.js',
+    xccodex: 'dist/xccodex.js',
+  })
 })
 
 test('launcher uses branded config paths and env vars', () => {

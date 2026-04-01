@@ -4,7 +4,8 @@
   "version": "2.1.88",
   "type": "module",
   "bin": {
-    "xccode": "dist/cli.js"
+    "xccode": "dist/cli.js",
+    "xccodex": "dist/xccodex.js"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -15,6 +16,7 @@
   "homepage": "https://github.com/ins13014778/xccode",
   "files": [
     "dist/cli.js",
+    "dist/xccodex.js",
     "image-processor.node",
     "README.md"
   ],

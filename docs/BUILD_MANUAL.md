@@ -64,6 +64,18 @@ npm run cli:run -- -p "Reply with exactly: OK"
 
 `npm run cli:run` is a repository helper around `dist/cli.js`. It is useful during source development because it mirrors environment config into the local run.
 
+One-click novice launcher:
+
+```bash
+node .\dist\xccodex.js
+```
+
+Force the wizard even if config already exists:
+
+```bash
+node .\dist\xccodex.js --reconfigure
+```
+
 ## 5. Configuration and instruction file locations
 
 Preferred current locations:
